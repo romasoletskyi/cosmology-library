@@ -1,0 +1,117 @@
+\documentclass[12pt]{extarticle}
+\usepackage{geometry}
+\geometry{a4paper,total={210mm,297mm},left=30mm,right=15mm,top=20mm,bottom=20mm}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\newtheorem{problem}{Problem}
+\newtheorem{conjecture}{Conjecture}
+\numberwithin{problem}{section}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{theorem}{Theorem}
+\numberwithin{theorem}{section}
+\usepackage{float}
+\usepackage{braket}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{multirow}
+
+\setlength{\parindent}{0pt}
+
+\DeclareMathOperator{\tr}{Tr}
+\DeclareMathOperator{\Ima}{Im}
+\DeclareMathOperator{\Rea}{Re}
+
+\title{Extraction of cosmological parameters}
+\date{}
+
+\begin{document}
+	\selectlanguage{english}
+	\vspace{-3cm}
+	\maketitle
+	\section{General equations}
+	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003}. From~\cite{gorbunov-rubakov:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
+	\begin{equation}
+		ds^2 = -(1 + 2\Psi(t, \mathbf{x}))dt^2 + a^2(t)(1 + 2\Phi(t, \mathbf{x}))\delta_{ij}dx^idx^j	
+	\end{equation}
+	Further on, we are going to write all equations up to first order in perturbations of matter and of metric $\Psi, \Phi$.
+	
+	\subsection{Boltzmann equation}
+	Consider a particle with 4-momentum $P^\mu$, which satisfies 
+	\begin{equation}
+		g_{\mu\nu} P^\mu P^\nu = -(1 + 2\Psi)(P^0)^2 + g_{ij}P^iP^j \equiv -E^2 + p^2 = -m^2
+	\end{equation}
+	where we have introduced $E$ and $p^i$ - energy an 3-momenta in local normal coordinates. This allows to rewrite 4-momentum as 
+	\begin{equation}
+		P^\mu = \begin{bmatrix}
+			E(1 - \Psi) & p^i(1 - \Phi) / a
+		\end{bmatrix}
+	\end{equation}
+	
+	We can choose parameter $\lambda$ such that $P^\mu = dx^\mu/d\lambda$ (for instance for massive particle, $d\lambda = d\tau/m$). Particle's movement in the $(\mathbf{x},\mathbf{p})$ phase space is deduced from
+	\begin{equation}
+		\label{eq:boltzmann:position}
+		\frac{dx^i}{dt} = \frac{dx^i}{d\lambda}\frac{d\lambda}{dt} = \frac{P^i}{P^0} = \frac{p^i}{Ea}(1+\Psi-\Phi)
+	\end{equation}
+	and from the geodesic equation
+	\begin{equation}
+		\label{eq:boltzmann:momentum}
+		\frac{dP^\mu}{d\lambda} = \frac{d^2x^\mu}{d\lambda^2} = -\Gamma^\mu_{\nu\sigma}\frac{dx^\nu}{d\lambda}{dx^\nu}{d\lambda} = -\Gamma^\mu_{\nu\sigma}P^\nu P^\sigma
+	\end{equation}
+	which gives
+	\begin{equation}
+		\frac{dp^i}{dt} = -(H + \dot{\Phi})p^i - \frac{E}{a}\Psi_{,i} - \frac{p^i}{Ea}p^k\Phi_{,k} + \frac{p^2}{Ea}\Phi_{,i}
+	\end{equation}
+
+	Boltzmann equation predicts an evolution of the distribution function $f(\mathbf{x},\mathbf{p},t)$ of particles. Consider following a infinitesimal volume of the phase space along a trajectory of some particle $(\mathbf{x}(t),\mathbf{p}(t))$. Number of particles and, therefore, $f(\mathbf{x}(t),\mathbf{p}(t), t)$ too are unchanged, unless there is some collision process, which abruptly changes particles' momenta. One can assume that collision is an uncorrelated process and its intensity can be found by integrating over all possible previous momenta of colliding particles a probability of these particles occupying corresponding phase space's infinitesimal volumes. Then one gets a closed equation on $f$, which is called Boltzmann equation and can be written as 
+	\begin{equation}
+		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i} \frac{dx^i}{dt} + \frac{\partial f}{\partial p^i} \frac{dp^i}{dt} = C[f]
+	\end{equation}
+	Here $dx^i/dt$ and $dp^i/dt$ correspond to particle's movement, $C[f]$ is called the collision integral and will be discussed further on for concrete reactions.
+	
+	\subsection{Evolution of photons}
+	Using~\ref{eq:boltzmann:position} and~\ref{eq:boltzmann:momentum} one can get left part of Boltzmann equation. For ultra-relativistic case we can apply $E = p$ and write
+	\begin{equation}
+		\label{eq:boltzmann:photon}
+		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i}\frac{\hat{p}^i(1 + \Psi - \Phi)}{a} - \frac{\partial f}{\partial p}\left[(H + \dot{\Phi})p + \frac{p^i\Psi_{,i}}{a}\right] + \frac{\partial f}{\partial \hat{p}^i}\frac{1}{a}\left[(\Phi - \Psi)_{,i} - \hat{p}^i\hat{p}^k(\Phi - \Psi)_{,k}\right]
+	\end{equation}
+	where we have introduced $\hat{p}^i = p^i / p$. At zero order we assume that $f$ is space and momentum direction homogeneous and, in fact, is equal to Bose-Einstein/Dirac distribution. Therefore, $\partial f/\partial x^i$ and $\partial f/\partial \hat{p}^i$ are first order perturbations. Then $\partial f/\partial\hat{p}^i$ term has second order, while $\partial f/\partial x^i$ can be simplified, resulting in
+	\begin{equation}
+		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i}\frac{\hat{p}^i}{a} - \frac{\partial f}{\partial p}p\left[H + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a}\right]
+	\end{equation}
+
+	Further on, we suppose that the only parameter which varies in the phase space is a temperature $T(\mathbf{x}, \mathbf{p}, t) = T(t)(1 + \Theta(\mathbf{x}, \mathbf{p}, t))$ of Bose-Einstein distribution. Such parameterization at linear order of $\Theta$ gives a corresponding distribution function
+	\begin{equation}
+		f(\mathbf{x}, \mathbf{p}, t) = f^{(0)}(p, t) - p\frac{\partial f^{(0)}}{\partial p}\Theta(\mathbf{x}, \mathbf{p}, t);\quad f^{(0)}(p, t) = \frac{1}{e^{p / T(t)} - 1}
+	\end{equation} 
+
+	Evolution of $T(t)$ is inferred from zero order part of~\ref{eq:boltzmann:photon}, since at zero order there is a global equilibrium with distribution $f^{(0)}(p, t)$, collision integral vanishes and we have
+	\begin{equation}
+		\frac{\partial f^{(0)}}{\partial t} - \frac{\partial f^{(0)}}{\partial p}pH = 0\Rightarrow -\left(\frac{\dot{T}}{T} + \frac{\dot{a}}{a}\right)\frac{\partial f^{(0)}}{\partial p} = 0\Rightarrow T\sim\frac{1}{a}
+	\end{equation}
+
+	At first order we have
+	\begin{equation}
+		\frac{df}{dt}\Big\lvert_{\text{first}} = -p\frac{\partial f^{(0)}}{\partial p}\left[\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} - pH\frac{\partial\Theta}{\partial p}\right]
+	\end{equation}
+
+	We are mostly interested in recombination epoch, when photons interact with non-relativistic electrons via Thomson scattering. The collision integral $C[f]$ is calculated in~\cite{dodelson:2003}[Chapter 5.2] to be
+	\begin{equation}
+		C[f] = -p\frac{\partial f^{(0)}}{\partial p}n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0\right];\quad \Theta_0 = \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(p\mathbf{\hat{p'}})
+	\end{equation}
+	where $n_e$ is electrons' concentration, $\mathbf{u}_e$ is electrons' relative velocity, and $\sigma_T$ is Thomson scattering cross section.
+	
+	\subsection{Evolution of massive particles}
+	For massive particles as a final result we get minor modifications
+	\begin{equation}
+		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i}\frac{\hat{p}^i}{a}\frac{p}{E} - \frac{\partial f}{\partial p}p\left[H + \dot{\Phi} + \hat{p}^i\Psi_{,i} \frac{E}{ap}\right]
+	\end{equation}
+	
+	\bibliographystyle{plain}
+	\bibliography{refs.bib}
+\end{document}
