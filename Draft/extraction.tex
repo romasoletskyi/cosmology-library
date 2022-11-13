@@ -35,7 +35,7 @@
 	\vspace{-3cm}
 	\maketitle
 	\section{General equations}
-	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003}. From~\cite{gorbunov-rubakov:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
+	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
 	\begin{equation}
 		ds^2 = -(1 + 2\Psi(t, \mathbf{x}))dt^2 + a^2(t)(1 + 2\Phi(t, \mathbf{x}))\delta_{ij}dx^idx^j	
 	\end{equation}
@@ -105,6 +105,30 @@
 		C[f] = -p\frac{\partial f^{(0)}}{\partial p}n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0\right];\quad \Theta_0 = \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(p\mathbf{\hat{p'}})
 	\end{equation}
 	where $n_e$ is electrons' concentration, $\mathbf{u}_e$ is electrons' relative velocity, and $\sigma_T$ is Thomson scattering cross section.
+	
+	Complete equation is then
+	\begin{equation}
+		\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} - pH\frac{\partial\Theta}{\partial p} = n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0\right]
+	\end{equation}
+
+	We can get rid of dependence on the momentum module $p$ by following an idea in~\cite{ma:1995} - multiply the equation by $4\pi p^3 f^{(0)}(t, p)$ and integrate over $p\in[0,+\infty)$. Abusing notation, we redefine 
+	\begin{equation}
+		\int pf^{(0)} \Theta 4\pi p^2 dp= \rho^{(0)}(t)\Theta(\mathbf{x},\mathbf{\hat{p}}, t);\quad \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(\mathbf{x}, \mathbf{\hat{p'}}, t) = \Theta_0(\mathbf{x}, t)
+	\end{equation}
+	Note that multiplication of $p$-constant by $4\pi p^3 f^{(0)}$ and integration is equivalent to just multiplication by energy density $\rho^{(0)}(t)$.
+
+	\begin{equation}
+		\frac{\partial}{\partial t}(\rho^{(0)}\Theta) + \frac{\hat{p}^i}{a}(\rho^{(0)}\Theta)_{,i} + \rho^{(0)}\dot{\Phi} + \rho^{(0)}\frac{\hat{p}^i\Psi_{,i}}{a} + 4H\rho^{(0)}\Theta = n_e\sigma_T\rho^{(0)}[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0]
+	\end{equation}
+	Using continuity equation $\partial \rho^{(0)}/\partial t + 4H\rho^{(0)} = 0$ for photons and reducing by $\rho^{(0)}$ simplifies an equation to
+	\begin{equation}
+		\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} = n_e\sigma_T[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0]
+	\end{equation}
+
+	Finally, since equation is linear we perform Fourier transformation. In parallel, we replace time by conformal time $\eta$ along with corresponding derivatives. We define $\mu = \mathbf{\hat{p}}\cdot\mathbf{k} / k$ and assume that electrons' flow is irrotational that is $u_e(\mathbf{k}, \eta)\sim\mathbf{k}$ (according to~\cite{gorbunov-rubakov:2011}[Chapter 3.1] rotational perturbations correspond to vector metric perturbations and do not grow with time). We introduce optical depth $\tau(\eta) = \int^{\eta_0}_\eta d\eta' n_e\sigma_Ta \Rightarrow n_e\sigma_Ta = -\tau'$. We obtain
+	\begin{equation}
+		\Theta' + ik\mu\Theta + \Phi' + ik\mu\Psi = -\tau'[\mu u_e - \Theta + \Theta_0]
+	\end{equation}
 	
 	\subsection{Evolution of massive particles}
 	For massive particles as a final result we get minor modifications
