@@ -34,9 +34,10 @@
 	\selectlanguage{english}
 	\vspace{-3cm}
 	\maketitle
-	\section{General equations}
-	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
+	\section{Linear perturbations}
+	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov-2:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
 	\begin{equation}
+		\label{eq:perturb:metric}
 		ds^2 = -(1 + 2\Psi(t, \mathbf{x}))dt^2 + a^2(t)(1 + 2\Phi(t, \mathbf{x}))\delta_{ij}dx^idx^j	
 	\end{equation}
 	Further on, we are going to write all equations up to first order in perturbations of matter and of metric $\Psi, \Phi$.
@@ -48,6 +49,7 @@
 	\end{equation}
 	where we have introduced $E$ and $p^i$ - energy an 3-momenta in local normal coordinates. This allows to rewrite 4-momentum as 
 	\begin{equation}
+		\label{eq:4-momentum}
 		P^\mu = \begin{bmatrix}
 			E(1 - \Psi) & p^i(1 - \Phi) / a
 		\end{bmatrix}
@@ -82,6 +84,7 @@
 	\end{equation}
 	where we have introduced $\hat{p}^i = p^i / p$. At zero order we assume that $f$ is space and momentum direction homogeneous and, in fact, is equal to Bose-Einstein/Dirac distribution. Therefore, $\partial f/\partial x^i$ and $\partial f/\partial \hat{p}^i$ are first order perturbations. Then $\partial f/\partial\hat{p}^i$ term has second order, while $\partial f/\partial x^i$ can be simplified, resulting in
 	\begin{equation}
+		\label{eq:boltzmann:photon-left}
 		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i}\frac{\hat{p}^i}{a} - \frac{\partial f}{\partial p}p\left[H + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a}\right]
 	\end{equation}
 
@@ -97,26 +100,28 @@
 
 	At first order we have
 	\begin{equation}
+		\label{eq:boltzmann:photon-first}
 		\frac{df}{dt}\Big\lvert_{\text{first}} = -p\frac{\partial f^{(0)}}{\partial p}\left[\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} - pH\frac{\partial\Theta}{\partial p}\right]
 	\end{equation}
 
 	We are mostly interested in recombination epoch, when photons interact with non-relativistic electrons via Thomson scattering. The collision integral $C[f]$ is calculated in~\cite{dodelson:2003}[Chapter 5.2] to be
 	\begin{equation}
+		\label{eq:collision:photon}
 		C[f] = -p\frac{\partial f^{(0)}}{\partial p}n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0\right];\quad \Theta_0 = \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(p\mathbf{\hat{p'}})
 	\end{equation}
 	where $n_e$ is electrons' concentration, $\mathbf{u}_e$ is electrons' relative velocity, and $\sigma_T$ is Thomson scattering cross section.
+
+	We can get rid of dependence on the momentum module $p$ by following an idea in~\cite{ma:1995} - multiply equations~\ref{eq:boltzmann:photon-first} and~\ref{eq:collision:photon} by $p^3/4\pi^2$ and integrate over $p\in[0,+\infty)$. Abusing notation, we redefine 
+	\begin{equation}
+		\label{eq:redef:theta}
+		\int -p\frac{\partial f^{(0)}}{\partial p}\frac{p^3}{4\pi^2}\Theta dp = \rho^{(0)}(t)\Theta(\mathbf{x},\mathbf{\hat{p}}, t);\quad \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(\mathbf{x}, \mathbf{\hat{p'}}, t) = \Theta_0(\mathbf{x}, t)
+	\end{equation}
+	Note that
+	\begin{equation}
+		\int -p\frac{\partial f^{(0)}}{\partial p}\frac{p^3}{4\pi^2} dp = \int p^3 f^{(0)} \frac{dp}{\pi^2} = 2\int pf^{(0)} \frac{4\pi p^2 dp}{(2\pi)^3} = \rho^{(0)}
+	\end{equation}
+	where $\rho^{(0)}$ is the energy density and integral prefactor 2 is due to 2 spin states of an electron. This computation justifies the redefinition of $\Theta$ given above - $\Theta$ not depending on $p$ leads to an identity. After integration by parts we obtain
 	
-	Complete equation is then
-	\begin{equation}
-		\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} - pH\frac{\partial\Theta}{\partial p} = n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0\right]
-	\end{equation}
-
-	We can get rid of dependence on the momentum module $p$ by following an idea in~\cite{ma:1995} - multiply the equation by $4\pi p^3 f^{(0)}(t, p)$ and integrate over $p\in[0,+\infty)$. Abusing notation, we redefine 
-	\begin{equation}
-		\int pf^{(0)} \Theta 4\pi p^2 dp= \rho^{(0)}(t)\Theta(\mathbf{x},\mathbf{\hat{p}}, t);\quad \frac{1}{4\pi}\int d\mathbf{\hat{p'}}\Theta(\mathbf{x}, \mathbf{\hat{p'}}, t) = \Theta_0(\mathbf{x}, t)
-	\end{equation}
-	Note that multiplication of $p$-constant by $4\pi p^3 f^{(0)}$ and integration is equivalent to just multiplication by energy density $\rho^{(0)}(t)$.
-
 	\begin{equation}
 		\frac{\partial}{\partial t}(\rho^{(0)}\Theta) + \frac{\hat{p}^i}{a}(\rho^{(0)}\Theta)_{,i} + \rho^{(0)}\dot{\Phi} + \rho^{(0)}\frac{\hat{p}^i\Psi_{,i}}{a} + 4H\rho^{(0)}\Theta = n_e\sigma_T\rho^{(0)}[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0]
 	\end{equation}
@@ -125,16 +130,202 @@
 		\dot{\Theta} + \frac{\hat{p}^i\Theta_{,i}}{a} + \dot{\Phi} + \frac{\hat{p}^i\Psi_{,i}}{a} = n_e\sigma_T[\mathbf{\hat{p}}\cdot\mathbf{u}_e - \Theta + \Theta_0]
 	\end{equation}
 
-	Finally, since equation is linear we perform Fourier transformation. In parallel, we replace time by conformal time $\eta$ along with corresponding derivatives. We define $\mu = \mathbf{\hat{p}}\cdot\mathbf{k} / k$ and assume that electrons' flow is irrotational that is $u_e(\mathbf{k}, \eta)\sim\mathbf{k}$ (according to~\cite{gorbunov-rubakov:2011}[Chapter 3.1] rotational perturbations correspond to vector metric perturbations and do not grow with time). We introduce optical depth $\tau(\eta) = \int^{\eta_0}_\eta d\eta' n_e\sigma_Ta \Rightarrow n_e\sigma_Ta = -\tau'$. We obtain
+	Finally, since equation is linear we perform Fourier transformation. In parallel, we replace time by conformal time $\eta$ along with corresponding derivatives. We define $\mu = \mathbf{\hat{p}}\cdot\mathbf{k} / k$ and assume that electrons' flow is irrotational that is $u_e(\mathbf{k}, \eta)\sim\mathbf{k}$ (according to~\cite{gorbunov-rubakov-2:2011}[Chapter 3.1] rotational perturbations correspond to vector metric perturbations and do not grow with time). We introduce optical depth $\tau(\eta) = \int^{\eta_0}_\eta d\eta' n_e\sigma_Ta \Rightarrow n_e\sigma_Ta = -\tau'$. We obtain
 	\begin{equation}
+		\label{eq:theta}
 		\Theta' + ik\mu\Theta + \Phi' + ik\mu\Psi = -\tau'[\mu u_e - \Theta + \Theta_0]
 	\end{equation}
+	Note that equation depends only on $\mathbf{k}$ and angle $\mu$, thus, we can average over $\mathbf{\hat{p}}$ having same angle $\mu$ with $\mathbf{k}$ and pick an axis-symmetric $\Theta$.
 	
-	\subsection{Evolution of massive particles}
-	For massive particles as a final result we get minor modifications
+	\subsection{Evolution of cold dark matter}
+	For massive particles we get minor modifications from~\ref{eq:boltzmann:photon-left}
 	\begin{equation}
+		\label{eq:boltzmann:cold}
 		\frac{df}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\partial x^i}\frac{\hat{p}^i}{a}\frac{p}{E} - \frac{\partial f}{\partial p}p\left[H + \dot{\Phi} + \hat{p}^i\Psi_{,i} \frac{E}{ap}\right]
 	\end{equation}
+	
+	Dark matter doesn't interact with other particles and itself, collision integral is zero. Instead of assuming distribution's $f$ form as in case of photons, we are going to employ hydrodynamic approach and consider perturbations in concentration $n$ and flow velocity $\mathbf{u}$ which are defined as
+	\begin{equation}
+		n = \int\frac{d^3p}{(2\pi)^3} f;\quad u^i = \frac{1}{n}\int\frac{d^3p}{(2\pi)^3} \frac{p^i}{E(p)}f
+	\end{equation}
+	In order to obtain hydrodynamic equations, we just multiply~\ref{eq:boltzmann:cold} by powers $1$ or $p^i/E$, then integrate over all momenta, and neglect terms $O((p/E)^2)$. Derivation gives equations of continuity of matter and momentum
+	\begin{align}
+		\label{eq:continuity:cold}
+		& \frac{\partial n}{\partial t} + \frac{1}{a}\frac{\partial (nu^i)}{\partial x^i} + 3[H + \dot{\Phi}]n = 0\\
+		\label{eq:momentum:cold}
+		& \frac{\partial(nu^i)}{\partial t} + 4Hnu^i + \frac{n}{a}\frac{\partial \Psi}{\partial x^i} = 0
+	\end{align}
+	Concentration can be expanded around average value as $n(\mathbf{x}, t) = \bar{n}(t)[1 + \delta(\mathbf{x}, t)]$, while velocity $\mathbf{u}(\mathbf{x}, t)$ is already a first order value. Zero order of~\ref{eq:continuity:cold} gives $\bar{n}\sim 1/a^3$. First order is
+	\begin{align}
+		& \frac{\partial\delta}{\partial t} + \frac{1}{a}\frac{\partial u^i}{\partial x^i} + 3\dot{\Phi} = 0 \\
+		& \frac{\partial u^i}{\partial t} + Hu^i + \frac{1}{a}\frac{\partial\Psi}{\partial x^i} = 0
+	\end{align}
+	Performing Fourier transformation, going to conformal time and assuming that $\mathbf{u}$ is irrotational, we obtain for CDM
+	\begin{align}
+		\label{eq:density:cold}
+		& \delta_c' + iku_c + 3\Phi' = 0\\
+		& u_c' + \frac{a'}{a}u_c + ik\Psi = 0
+	\end{align}
+
+	\subsection{Evolution of protons and electrons}
+	In~\cite{gorbunov-rubakov-1:2017}[Chapter 6.3] it was calculated that a typical transfer time of energy between protons and electrons due to Coulomb scattering is around $3\cdot 10^4s$ at recombination epoch which is much smaller than Hubble time and transfer time between photons and electrons due to Thomson scattering. Therefore, we will suppose that there is a tight coupling between protons and electrons, which forces $\mathbf{u}_e = \mathbf{u}_p \equiv \mathbf{u}_b$, where we have introduced common velocity $\mathbf{u}_b$ where $b$ index historically means (incorrect but convenient) grouping of protons and electrons into "baryons". Moreover, coupling and overall electrical neutrality forces $\delta_b = (\rho_e - \bar{\rho}_e) / \bar{\rho}_e = (\rho_p - \bar{\rho}_p) / \bar{\rho}_p$.
+	
+	Derivation of evolution equations from Boltzmann equation~\ref{eq:boltzmann:cold} proceeds in the same way, except that now there is a right side because of Thomson scattering of photons. Since integration of collision integral over all angles gives zero, an equation corresponding to density evolution remains the same as~\ref{eq:density:cold}
+	\begin{equation}
+		\delta_b' + iku_b + 3\Phi' = 0		
+	\end{equation}
+
+	If we multiply~\ref{eq:boltzmann:cold} by $p^i$ instead of $p^i/E$ and integrate over momentum because of non-relativity, we are going to get the same left part as in~\ref{eq:momentum:cold} only multiplied by mass of proton (which dominates over mass of electron)
+	\begin{equation}
+		m_p\frac{\partial(n_bu_b^i)}{\partial t} + 4Hm_pn_bu_b^i + \frac{m_pn_b}{a}\frac{\partial \Psi}{\partial x^i} = 2\int \frac{d^3p}{(2\pi)^3} C[f]p^i
+	\end{equation}
+	Right part contains $2$ factor because $n_e = 2\int\frac{d^3p}{(2\pi)^3}f$ where $2$ corresponds to two spin states of an electron. Expanding around zero order and dividing by zero-order density $\rho_b = m_p\bar{n}_b$ leads to
+	\begin{equation}
+		\frac{\partial u^i_b}{\partial t} + Hu^i_b + \frac{1}{a}\frac{\partial\Psi}{\partial x^i} = \frac{2}{\rho_b}\int\frac{d^3p}{(2\pi)^3} C[f]p^i
+	\end{equation}
+
+	Integral of collision integral multiplied by $p^i$ is a momentum density which is transferred to baryons from the electrons. Because of momentum conservation, this term is opposite to same term but with photon collision integral~\ref{eq:collision:photon}. Using redefinition~\ref{eq:redef:theta} the term simplifies to
+	\begin{multline}
+		\int \frac{d^3p}{(2\pi)^3} C[f]p^i = \int\frac{d^3p}{(2\pi)^3} p^ip\frac{\partial f^{(0)}}{\partial p}n_e\sigma_T\left[\mathbf{\hat{p}}\cdot\mathbf{u}_b - \Theta + \Theta_0\right] =\\
+		-2\rho_\gamma n_e\sigma_T\int\frac{d\mathbf{\hat{p}}}{4\pi}\hat{p}^i[\mathbf{\hat{p}}\cdot\mathbf{u}_b - \Theta + \Theta_0]
+	\end{multline}
+	where $\rho_\gamma$ is photons' energy density (same as $\rho^{(0)}$ in~\ref{eq:redef:theta}). Integral over $\Theta_0$ term is zero. We compute $\int d\mathbf{\hat{p}} \hat{p}^i(\mathbf{\hat{p}}\cdot\mathbf{u}_b)/4\pi = \mathbf{u}_b / 3$. According to discussion after equation~\ref{eq:theta}, $\Theta$ in Fourier space can be picked axis-symmetric around $\mathbf{k}$. Therefore, $\int d\mathbf{\hat{p}} p^i \Theta(\mathbf{k}, \mathbf{\hat{p}}, \eta)\sim k^i$ and define first moment or dipole as
+	\begin{equation}
+		\Theta_1(\mathbf{k}, \eta)\hat{k}^i = i\int \frac{d\mathbf{\hat{p}}}{4\pi} \hat{p}^i\Theta(\mathbf{k}, \mathbf{\hat{p}}, \eta)\Rightarrow\Theta_1(\mathbf{k}, \eta) = \frac{i}{2}\int^{1}_{-1}\mu\Theta(\mathbf{k},\mu,\eta) d\mu
+	\end{equation}
+	
+	Going to Fourier space, from time to conformal time and assuming $u^i_b\sim k^i$ results in 
+	\begin{equation}
+		u_b' + \frac{a'}{a}u_b + ik\Psi = \tau'\frac{4\rho_\gamma}{\rho_b}\left(i\Theta_1 + \frac{u_b}{3}\right)		
+	\end{equation}
+
+	\subsection{Evolution of neutrinos}
+	We proceed in analogy with photons, because neutrinos are ultra-relativistic, at least during recombination, by imposing deviation from the equilibrium distribution as
+	\begin{equation}
+		f_\nu(\mathbf{x}, \mathbf{p}, t) = \left[\exp\left(-\frac{p}{T_\nu(t)(1 + \mathcal{N}(\mathbf{x}, \mathbf{p}, t))}\right) + 1\right]^{-1} = f_\nu^{(0)}(p, t) - p\mathcal{N}\frac{\partial f_\nu^{(0)}}{\partial p}
+	\end{equation}
+
+	Neutrinos do not interact with other particles during recombination and later epochs and collision integral is zero. To consider case of non-relativistic neutrinos at latest stages of Universe, we apply expansion of $f_\nu$ into~\ref{eq:boltzmann:cold} to get a non-relativistic analog of~\ref{eq:boltzmann:photon-first}
+	\begin{equation}
+		\frac{\partial\mathcal{N}}{\partial t} + \frac{\hat{p}^i}{a}\frac{p}{E}\frac{\partial\mathcal{N}}{\partial x^i} - pH\frac{\partial\mathcal{N}}{\partial p} + \dot{\Phi} + \frac{E}{ap}\hat{p}^i\Psi_{,i} = 0
+	\end{equation}
+	
+	In Fourier space and conformal time it's written as
+	\begin{equation}
+		\mathcal{N}' + ik\mu\frac{p}{E}\mathcal{N} - p\frac{a'}{a}\frac{\partial\mathcal{N}}{\partial p} + \Phi' + ik\mu\frac{E}{p}\Psi = 0
+	\end{equation}
+	Since $E(p)$ at later times deviates from $E=p$, one cannot average $\mathcal{N}$ perturbations over $p$ like in photon's case. Nonetheless, one can make $\mathcal{N}$ axis-symmetric over $\mathbf{k}$ and consider it as a function $\mathcal{N}(\mathbf{k}, p, \mu, \eta)$.
+
+	\subsection{Einstein gravity}
+	Einstein equations are
+	\begin{equation}
+		G^\mu_\nu = g^{\mu\sigma}\left(R_{\sigma\nu} - \frac{1}{2}g_{\sigma\nu}R\right) = 8\pi GT^\mu_\nu
+	\end{equation}
+	Plugging~\ref{eq:perturb:metric} into definitions of Ricci tensor gives up to linear order in Fourier space
+	\begin{align}
+		& \delta G^0_0 = -6H\dot{\Phi} + 6\Psi H^2 - 2\frac{k^2\Phi}{a^2} \\
+		& \delta G^i_j = F(\Phi, \Psi)\delta^i_j + \frac{k^ik_j(\Phi + \Psi)}{a^2}
+	\end{align}
+	Here $F(\Phi, \Psi)$ is a complicated function and since we need only two equations on an evolution of $\Phi$ and $\Psi$, we are going to consider a traceless longitudinal part
+	\begin{equation}
+		(\hat{k}_i\hat{k}^j - \frac{1}{3}\delta_i^j)\delta G^i_j = \frac{2k^2}{3a^2}(\Phi + \Psi)
+	\end{equation}
+	
+	In normal coordinates energy-momentum tensor is written in analogy with single particle energy-momentum tensor.
+	\begin{align}
+		& T^0_0 = -g\int \frac{d^3p}{(2\pi)^3} E(p) f(\mathbf{x}, \mathbf{p}, t) \\
+		& T^i_j = g\int \frac{d^3p}{(2\pi)^3} \frac{p^ip^j}{E(p)} f(\mathbf{x}, \mathbf{p}, t)
+	\end{align}
+	Here $g$ is spin degeneracy. Transformation of 4-vector to initial coordinates can be read from~\ref{eq:4-momentum}. Corresponding transformation of $(1, 1)$ tensor acts on $T^0_0$ and $T^i_j$ as an identity and the formulas remain same.
+	
+	For massive non-relativistic particles up to first order in $p/E$, $E\approx m\Rightarrow T^0_0 = -mn = -\rho(1 + \delta)$. For photons, since $T = \bar{T}(1 + \Theta)$ and energy density $-T^0_0\sim T^4$, integration over $\mathbb{p}$ gives $T^0_0 = -\rho_\gamma(1 + 4\Theta_0)$. While neutrinos are massless, we have the same result. Spatial part is strongly suppressed for massive particles. For photons, we have
+	\begin{multline}
+		(\hat{k}_i\hat{k}^j - \frac{1}{3}\delta_i^j)T^i_j = 2\int\frac{2\pi p^2 d\mu dp}{(2\pi)^3}\frac{p^2(\mu^2 - 1/3)}{p}f(\mathbf{k}, p, \mu, t) =\\
+		2\int d\mu dp\frac{p^3}{4\pi^2}(\mu^2 - 1/3)\left(-p\frac{\partial f^{(0)}}{\partial p}\Theta(\mathbf{k}, p, \mu, t)\right) = \frac{8\rho_\gamma}{3}\int \frac{d\mu}{2} \frac{3\mu^2 - 1}{2}\Theta(\mathbf{k}, \mu, t) = -\frac{8\rho_\gamma}{3}\Theta_2
+	\end{multline}
+	where we have defined quadrupole $\Theta_2$ (noting that $(3\mu^2 - 1) / 2$ is second Legendre polynomial). Combining sorts of particles at the right side, we obtain first order equations for metric perturbations
+	\begin{align}
+		& k^2\Phi + 3\frac{a'}{a}\left(\Phi' - \frac{a'}{a}\Psi\right) = 4\pi Ga^2[\rho_c\delta_c + \rho_b\delta_b + 4\rho_\gamma\Theta_0 + 4\rho_\nu\mathcal{N}_0] \\
+		& k^2(\Phi + \Psi) = -32\pi Ga^2[\rho_\gamma\Theta_2 + \rho_\nu\mathcal{N}_2]
+	\end{align}
+
+	\section{CMB and BAO}
+	In this section we are going to analyze how to solve the system of equations derived in the previous section, what observables can be extracted from CMB and BAO observations, and how these observables are connected with perturbations of matter and gravity.
+	
+	\subsection{CMB observations and theory}
+	Telescope can, in principle, measure photon temperature fluctuations field $\Theta(\mathbf{n})$, where $\mathbf{n}$ is a normal vector to a sphere. Since it's a fluctuations field $\langle\Theta\rangle_{S^2} = 0$. It can then be expanded into spherical harmonics as 
+	\begin{equation}
+		\Theta(\mathbf{n}) = \sum_{l=1}^\infty\sum_{m=-l}^l a_{lm}Y_{lm}(\mathbf{n})
+	\end{equation}
+	
+	We suppose that $a_{lm}$ are uncorrelated random variables such that $\langle a_{l'm'}^*a_{lm}\rangle = C_l\delta_{ll'}\delta_{mm'}$. Dispersion doesn't depend on $m$ since there is no preferred direction on sky. For large $l$, there are plenty different $m$ to measure $C_l$ as
+	\begin{equation}
+		C_l = \frac{1}{2l+1}\sum_{m=-l}^l\langle|a_{lm}|^2\rangle\approx \frac{1}{2l+1}\sum_{m=-l}^l|a_{lm}|^2
+	\end{equation}
+	A relative standard deviation of such estimate is $1/\sqrt{l + 1/2}$ and we are going to predict precisely $C_l$ from theoretical considerations.
+	
+	We can extract $a_{lm}$ as 
+	\begin{equation}
+		a_{lm} = \int d\Omega Y_{lm}^*(\mathbf{n})\Theta(0, \mathbf{n}) = \int\frac{d^3k}{(2\pi)^3}\int d\Omega Y_{lm}^*(\mathbf{n})\Theta(\mathbf{k},\mathbf{n})
+	\end{equation}
+	where we have returned to considering general position-dependent field $\Theta(\mathbf{x}, \mathbf{n}, \eta)$. Using definition of $C_l$ we obtain
+	\begin{equation}
+		C_l = \int\frac{d^3k d^3k'}{(2\pi)^6}\int d\Omega d\Omega' Y_{lm}(\mathbf{n})Y_{lm}^*(\mathbf{n}')\langle\Theta^*(\mathbf{k}, \mathbf{n}) \Theta(\mathbf{k}', \mathbf{n}')\rangle
+	\end{equation}
+	From theory of inflation, it's known that all initial values of matter and metric fields are derived from initial curvature perturbation $\mathcal{R}(\mathbf{k})$. Because of linearity, we can integrate $\Theta$ up to present time and write $\Theta(\mathbf{k}, \mathbf{n}) = \mathcal{T}(k, \mu)\mathcal{R}(\mathbf{k})$, where $\mu = \mathbf{\hat{k}}\cdot\mathbf{n}$, $\mathcal{T}$ depends on $k$ and $\mu$ only because the equation~\ref{eq:theta} depends on same variables. Using correlation function $\langle\mathcal{R}^*(\mathbf{k})\mathcal{R}(\mathbf{k}')\rangle = (2\pi)^3\delta(\mathbf{k}-\mathbf{k}')P_\mathcal{R}(k)$ one has 
+	\begin{equation}
+		C_l = \int\frac{d^3k}{(2\pi)^3}P_\mathcal{R}(k)\int d\Omega d\Omega' Y_{lm}(\mathbf{n})Y_{lm}^*(\mathbf{n}')\mathcal{T}^*(k,\mu)\mathcal{T}^*(k',\mu')		
+	\end{equation}
+	Expand $\mathcal{T}(k, \mu)$ into multipoles such that 
+	\begin{equation}
+		\label{eq:transfer_l}
+		\mathcal{T}(k, \mu) = \sum_l (-i)^l (2l+1) P_l(\mu) \mathcal{T}_l(k)
+	\end{equation}
+	where $P_l(\mu)$ is $l$-th Legendre polynomial. Correspondingly, we have $\Theta_l(k) = \mathcal{T}_l(k)\mathcal{R}(\mathbf{k})$. After doing integration and using properties of spherical harmonics and Legendre polynomials, expression greatly simplifies to 
+	\begin{equation}
+		C_l = \frac{2}{\pi}\int dk k^2 P_\mathcal{R}(k) |\mathcal{T}_l(k)|^2
+	\end{equation}
+	Thus, we have to compute $\mathcal{T}_l(k)$ or, in other words, how $\Theta_l(k, \eta)$ evolves from given initial conditions.
+	
+	\subsection{Solving evolution equations}
+	Equation~\ref{eq:theta} can be written as
+	\begin{equation}
+		\Theta' + ik\mu\Theta - \tau'\Theta = -\tau'[\mu u_b + \Theta_0] - \Phi' - ik\mu\Psi \equiv S(\mathbf{k}, \mu, \eta)
+	\end{equation}
+	and formally solved as
+	\begin{equation}
+		\Theta(\mathbf{k}, \mu, \eta_0) = \int_0^{\eta_0} d\eta S(\mathbf{k}, \mu, \eta) e^{ik\mu(\eta - \eta_0) - \tau(\eta)}
+	\end{equation}
+	Here the lower bound of integration can be taken equal to zero because at small $\eta$, $\tau(\eta)$ is very large and initial part at some staring time $\eta_1$ vanishes as $\Theta|_{\eta_1}e^{-\tau(\eta_1)}\to 0$. One can make $S$ be independent of $\mu$ under the integral using integration by parts and $\mu e^{ik\mu(\eta-\eta_0)} = (1/ik)\cdot d(e^{ik\mu(\eta-\eta_0)})/d\eta$. Thus, we can consider solution
+	\begin{equation}
+		\Theta(\mathbf{k}, \mu, \eta_0) = \int_0^{\eta_0} d\eta S(k, \eta) e^{ik\mu(\eta - \eta_0)};\quad S(k, \eta) = \frac{d}{d\eta}\left[e^{-\tau}\left(\Psi - \frac{i\tau'u_b}{k}\right)\right] - (\tau'\Theta_0 + \Phi')e^{-\tau}
+	\end{equation}
+	We define multipole expansion of $\Theta(k, \mu)$ as 
+	\begin{equation}
+		\label{eq:theta:multipole}
+		\Theta_l(k) = \frac{1}{(-i)^l}\int^1_{-1}\frac{d\mu}{2}P_l(\mu)\Theta(k, \mu) d\mu
+	\end{equation}
+	which is consistent with~\ref{eq:transfer_l}. Expanding $e^{ik\mu(\eta - \eta_0)}$ and using odd/even property of spherical Bessel functions $j_l$, we obtain
+	\begin{equation}
+		\Theta_l(k) = \int_0^{\eta_0}d\eta S(k, \eta) j_l[k(\eta_0 - \eta)]
+	\end{equation}
+	We have pushed problem of finding $\Theta_l$ onto computing $S(k, \eta)$. Let us obtain a hierarchy of differential equations describing $\Theta_l$ evolution, which can be obtained directly from~\ref{eq:theta}, the multipole's definition~\ref{eq:theta:multipole} and Legendre polynomials recursion formula $(2l + 1)\mu P_l(\mu) = (l + 1)P_{l + 1}(\mu) + lP_{l - 1}(\mu)$
+	\begin{align}
+		& \Theta'_0 = -k\Theta_1 - \Phi'\\
+		& \Theta'_1 = \frac{k}{3}\left[\Theta_0 - 2\Theta_2 + \Psi\right] + \tau'\left[\Theta_1 - \frac{iu_b}{3}\right] \\
+		\label{eq:theta:high_l}
+		& \Theta'_l = \tau'\Theta_l + \frac{k}{2l + 1}\left[l\Theta_{l - 1} - (l + 1)\Theta_{l + 1}\right]
+	\end{align}
+	
+	The problem is that evolution of $\Theta_0$ (which $S(k, \eta)$ depend on) couples to $\Theta_1$, which couples to $\Theta_2$ and so on. Paper~\cite{seljak:1996}, however, claims that $S(k, \eta)$ is slowly varying and it is sufficient to take several $l$ to get a good approximation. In order to get a decent truncation of the hierarchy, we employ idea from~\cite{ma:1995} by noting that $\Theta_l\sim j_l(k\eta)e^{-\tau(\eta)}$ automatically satisfies equation~\ref{eq:theta:high_l}. Assuming that this is a correct asymptotic at large $l$, one uses recurrence relation for spherical Bessel functions to approximate
+	\begin{equation}
+		\Theta_{l_{\max} + 1}\approx \frac{2l_{\max} + 1}{k\eta}\Theta_{l_{\max}} - \Theta_{l_{\max} - 1}
+	\end{equation}
+	Then last equation of~\ref{eq:theta:high_l} at $l = l_{\max}$ becomes
+	\begin{equation}
+		\Theta'_{l_{\max}}\approx k\Theta_{l_{\max} - 1} + \Theta_{l_{\max}}\left[\tau' - \frac{l_{\max} + 1}{\eta}\right]
+	\end{equation}
+	One uses an analogous technique for neutrinos. Baryon and metric perturbations equations are solved in a straightforward way.
 	
 	\bibliographystyle{plain}
 	\bibliography{refs.bib}

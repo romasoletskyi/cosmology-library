@@ -5,16 +5,28 @@ Scott Dodelson.
 \newblock {\em {Modern Cosmology}}.
 \newblock Academic Press, Elsevier Science, 2003.
 
-\bibitem{gorbunov-rubakov:2011}
+\bibitem{gorbunov-rubakov-2:2011}
 Dmitry~S Gorbunov and Valery~A Rubakov.
 \newblock {\em {Introduction to the theory of the early universe: cosmological
   perturbations and inflationary theory}}.
 \newblock World Scientific, Singapore, 2011.
+
+\bibitem{gorbunov-rubakov-1:2017}
+Dmitry~S Gorbunov and Valery~A Rubakov.
+\newblock {\em {Introduction to the Theory of the Early Universe}: {Hot big
+  bang theory}}.
+\newblock World Scientific, Singapore, 2017.
 
 \bibitem{ma:1995}
 Chung-Pei Ma and Edmund Bertschinger.
 \newblock Cosmological perturbation theory in the synchronous and conformal
   newtonian gauges.
 \newblock {\em The Astrophysical Journal}, 455:7, dec 1995.
+
+\bibitem{seljak:1996}
+Uros Seljak and Matias Zaldarriaga.
+\newblock A line-of-sight integration approach to cosmic microwave background
+  anisotropies.
+\newblock {\em The Astrophysical Journal}, 469:437, oct 1996.
 
 \end{thebibliography}
