@@ -5,6 +5,11 @@ Scott Dodelson.
 \newblock {\em {Modern Cosmology}}.
 \newblock Academic Press, Elsevier Science, 2003.
 
+\bibitem{feldman:1994}
+Hume~A. Feldman, Nick Kaiser, and John~A. Peacock.
+\newblock Power-spectrum analysis of three-dimensional redshift surveys.
+\newblock {\em The Astrophysical Journal}, 426:23, may 1994.
+
 \bibitem{gorbunov-rubakov-2:2011}
 Dmitry~S Gorbunov and Valery~A Rubakov.
 \newblock {\em {Introduction to the theory of the early universe: cosmological
@@ -23,10 +28,21 @@ Chung-Pei Ma and Edmund Bertschinger.
   newtonian gauges.
 \newblock {\em The Astrophysical Journal}, 455:7, dec 1995.
 
+\bibitem{peebles:1980}
+P.~J.~E. {Peebles}.
+\newblock {\em {The large-scale structure of the universe}}.
+\newblock 1980.
+
 \bibitem{seljak:1996}
 Uros Seljak and Matias Zaldarriaga.
 \newblock A line-of-sight integration approach to cosmic microwave background
   anisotropies.
 \newblock {\em The Astrophysical Journal}, 469:437, oct 1996.
+
+\bibitem{tegmark:1998}
+Max Tegmark, Andrew J.~S. Hamilton, Michael~A. Strauss, Michael~S. Vogeley, and
+  Alexander~S. Szalay.
+\newblock Measuring the galaxy power spectrum with future redshift surveys.
+\newblock {\em The Astrophysical Journal}, 499(2):555--576, jun 1998.
 
 \end{thebibliography}

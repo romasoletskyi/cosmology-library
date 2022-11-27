@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.8.28)  17 NOV 2022 23:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.8.28)  27 NOV 2022 22:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -716,34 +716,48 @@ LaTeX Warning: No \author given.
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5] [6]
-[7] (./extraction.bbl) [8] (./extraction.aux)
+[7] [8] [9]
+Overfull \hbox (4.44989pt too wide) detected at line 416
+[][]\OMS/cmsy/m/n/12 h\OML/cmm/m/it/12 ^^N[]\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 k
+\OT1/cmr/m/n/12 )[]\OMS/cmsy/m/n/12 i \OT1/cmr/m/n/12 = [] [] \OML/cmm/m/it/12 
+d\OT1/cmr/bx/n/12 k\OML/cmm/m/it/12 d[] [] d\OT1/cmr/bx/n/12 r\OML/cmm/m/it/12 
+U\OT1/cmr/m/n/12 (\OT1/cmr/bx/n/12 r\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 e[] [] d[
+]U\OT1/cmr/m/n/12 (\OT1/cmr/bx/n/12 r\OT1/cmr/m/n/12 )\OML/cmm/m/it/12 e[]\OT1/
+cmr/m/n/12 ;  \OML/cmm/m/it/12 U\OT1/cmr/m/n/12 (\OT1/cmr/bx/n/12 r\OT1/cmr/m/n
+/12 ) = \OML/cmm/m/it/12 ^^^[]\OT1/cmr/m/n/12 (\OT1/cmr/bx/n/12 r\OT1/cmr/m/n/1
+2 ) []
+ []
+
+[10] (./extraction.bbl) [11] (./extraction.aux)
 Package rerunfilecheck Info: File `extraction.out' has not changed.
-(rerunfilecheck)             Checksum: 2DFD07D1F846D6F3586F8018E2C7E3D3;1729.
+(rerunfilecheck)             Checksum: 485EAF58CB8DE754E1DBCBD709016440;2037.
  ) 
 Here is how much of TeX's memory you used:
- 13462 strings out of 479648
- 211886 string characters out of 5886115
- 519153 words of memory out of 5000000
- 31162 multiletter control sequences out of 15000+600000
+ 13499 strings out of 479648
+ 212361 string characters out of 5886115
+ 519420 words of memory out of 5000000
+ 31172 multiletter control sequences out of 15000+600000
  479792 words of font info for 66 fonts, out of 8000000 for 9000
  475 hyphenation exceptions out of 8191
- 60i,10n,63p,840b,354s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,10n,63p,840b,425s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
-8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on extraction.pdf (8 pages, 193832 bytes).
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
+0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on extraction.pdf (11 pages, 230858 bytes).
 PDF statistics:
- 271 PDF objects out of 1000 (max. 8388607)
- 232 compressed objects within 3 object streams
- 86 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 340 PDF objects out of 1000 (max. 8388607)
+ 294 compressed objects within 3 object streams
+ 113 named destinations out of 1000 (max. 500000)
+ 105 words of extra memory for PDF output out of 10000 (max. 10000000)
 

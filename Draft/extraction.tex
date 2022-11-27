@@ -249,8 +249,8 @@
 		& k^2(\Phi + \Psi) = -32\pi Ga^2[\rho_\gamma\Theta_2 + \rho_\nu\mathcal{N}_2]
 	\end{align}
 
-	\section{CMB and BAO}
-	In this section we are going to analyze how to solve the system of equations derived in the previous section, what observables can be extracted from CMB and BAO observations, and how these observables are connected with perturbations of matter and gravity.
+	\section{CMB}
+	In this section we are going to analyze how to solve the system of equations derived in the previous section, what observables can be extracted from CMB observations, and how these observables are connected with perturbations of matter and gravity.
 	
 	\subsection{CMB observations and theory}
 	Telescope can, in principle, measure photon temperature fluctuations field $\Theta(\mathbf{n})$, where $\mathbf{n}$ is a normal vector to a sphere. Since it's a fluctuations field $\langle\Theta\rangle_{S^2} = 0$. It can then be expanded into spherical harmonics as 
@@ -317,7 +317,7 @@
 		& \Theta'_l = \tau'\Theta_l + \frac{k}{2l + 1}\left[l\Theta_{l - 1} - (l + 1)\Theta_{l + 1}\right]
 	\end{align}
 	
-	The problem is that evolution of $\Theta_0$ (which $S(k, \eta)$ depend on) couples to $\Theta_1$, which couples to $\Theta_2$ and so on. Paper~\cite{seljak:1996}, however, claims that $S(k, \eta)$ is slowly varying and it is sufficient to take several $l$ to get a good approximation. In order to get a decent truncation of the hierarchy, we employ idea from~\cite{ma:1995} by noting that $\Theta_l\sim j_l(k\eta)e^{-\tau(\eta)}$ automatically satisfies equation~\ref{eq:theta:high_l}. Assuming that this is a correct asymptotic at large $l$, one uses recurrence relation for spherical Bessel functions to approximate
+	The problem is that evolution of $\Theta_0$ (which $S(k, \eta)$ depends on) couples to $\Theta_1$, which couples to $\Theta_2$ and so on. Paper~\cite{seljak:1996}, however, claims that $S(k, \eta)$ is slowly varying and it is sufficient to take several $l$ to get a good approximation. In order to get a decent truncation of the hierarchy, we employ idea from~\cite{ma:1995} by noting that $\Theta_l\sim j_l(k\eta)e^{-\tau(\eta)}$ automatically satisfies equation~\ref{eq:theta:high_l}. Assuming that this is a correct asymptotic at large $l$, one uses recurrence relation for spherical Bessel functions to approximate
 	\begin{equation}
 		\Theta_{l_{\max} + 1}\approx \frac{2l_{\max} + 1}{k\eta}\Theta_{l_{\max}} - \Theta_{l_{\max} - 1}
 	\end{equation}
@@ -325,7 +325,104 @@
 	\begin{equation}
 		\Theta'_{l_{\max}}\approx k\Theta_{l_{\max} - 1} + \Theta_{l_{\max}}\left[\tau' - \frac{l_{\max} + 1}{\eta}\right]
 	\end{equation}
-	One uses an analogous technique for neutrinos. Baryon and metric perturbations equations are solved in a straightforward way.
+	One uses an analogous technique for neutrinos. Dark matter, baryon and metric perturbations equations are solved in a straightforward way.
+	
+	\section{Power spectrum}
+	From theory of previous two sections, we should be able to completely determine an evolution of metric and matter perturbations at linear order. At this order all perturbations are proportional to initial curvature perturbation $\mathcal{R}(\mathbf{k})$, where proportionality coefficient is a transfer function $\mathcal{T}(\mathbf{k}, \eta)$ and is determined from solving a system of coupled differentia equations. Then all perturbations have the Gaussian spectrum
+	\begin{equation}
+		\langle\delta^*(\mathbf{k}, \eta)\delta(\mathbf{k}', \eta)\rangle = (2\pi)^3\delta(\mathbf{k} - \mathbf{k}')P(\mathbf{k}, \eta);\quad P(\mathbf{k}, \eta) = P_{\mathcal{R}}(k)|\mathcal{T}(\mathbf{k}, \eta)|^2
+	\end{equation}
+	where $P_{\mathcal{R}}(k)$ is the spectrum of primordial curvature perturbations and $\delta$ is a placeholder for different (matter and gravity) perturbations. Thus, spectrum $P(\mathbf{k}, \eta)$ should contain if not all (when we enter non-linear regime), but a lot of information on evolution of perturbations and it would be desirable to estimate it. In this section we analyze how to obtain power spectrum $P(k)$ of matter perturbations from large galaxy surveys.
+	
+	\subsection{Band estimate}
+	Following~\cite{peebles:1980}[Chapter 33] we suppose that galaxies are sampled following two-stage random process:
+	\begin{enumerate}
+		\item Sample random field $\rho(\mathbf{r}) = \bar{n}(\mathbf{r})(1 + \delta(\mathbf{r}))$, where $\bar{n}(\mathbf{r})$ is an average observed density of galaxies, which can depend on selection criteria, and $\delta(\mathbf{r})$ are density perturbations. These perturbations satisfy $\langle\delta^*(\mathbf{k})\delta(\mathbf{k}')\rangle = (2\pi)^3\delta(\mathbf{k}-\mathbf{k}')P(k)$ and $P(k)$ is precisely the spectrum that we would like to estimate.
+		\item Sample galaxies in each small volume $\delta V$ as a Poisson random process with parameter $\lambda=\rho(\mathbf{r})\delta V$. Sampling is uncorrelated in different volumes, in some sense all correlations were encoded into $\rho(\mathbf{r})$. These galaxies form an empirical density $n(\mathbf{r}) = \sum_\alpha \delta(\mathbf{r} - \mathbf{r}_\alpha)$, where $\mathbf{r}_\alpha$ is a position of each galaxy.
+	\end{enumerate}
+	
+	As our final goal is to estimate a handful of cosmological parameters, we have to compute likelihood of an observed distribution $n(\mathbf{r})$. Unfortunately, this is computationally expensive due to large number of observed galaxies. Since cosmological parameters are not numerous, we can expect that we are able to compress this data into much smaller amount of empirical value and still get roughly the same quality estimates. We are going to consider a family of band estimate methods which employ this technique. Discussion is mainly based on~\cite{tegmark:1998}.
+	
+	Main observables are called band estimates $q_i$ defined as
+	\begin{equation}
+		\label{eq:band:def}
+		q_i = \int d\mathbf{r} d\mathbf{r}' E_i(\mathbf{r}, \mathbf{r}')\frac{n(\mathbf{r})n(\mathbf{r}')}{\bar{n}(\mathbf{r})\bar{n}(\mathbf{r}')} = \sum_{\alpha, \beta}\frac{E_i(\mathbf{r}_\alpha, \mathbf{r}_\beta)}{\bar{n}(\mathbf{r}_\alpha)\bar{n}(\mathbf{r}_\beta)}
+	\end{equation}
+	In order to compute its mathematical expectation $\langle q_i\rangle$ we consider an integral and rewrite it as a sum over small volumes $\delta V_i$ of equal volume $\delta V\to 0$
+	\begin{multline}
+		\int d\mathbf{r} d\mathbf{r}' g(\mathbf{r}, \mathbf{r}') \langle n(\mathbf{r})n(\mathbf{r}')\rangle = \lim_{\delta V\to 0}\sum_{i, j} g(\mathbf{r}_i, \mathbf{r}_j) \mathbb{E}\left[\mathbb{E}[n_i n_j|\rho(\mathbf{r}_i),\rho(\mathbf{r}_j)]\right] = \\
+		\lim_{\delta V\to 0}\sum_{i,j} g(\mathbf{r}_i, \mathbf{r}_j) \mathbb{E}\left[(\rho(\mathbf{r}_i)\delta V_i + \rho(\mathbf{r}_i)^2\delta V_i^2)\delta_{ij} + \rho(\mathbf{r}_i)\rho(\mathbf{r}_i)\delta V_i\delta V_j\right] = \\
+		\int d\mathbf{r} d\mathbf{r}' g(\mathbf{r}, \mathbf{r}') \left[\delta(\mathbf{r} - \mathbf{r}')\langle\rho(\mathbf{r})\rangle + \langle\rho(\mathbf{r})\rho(\mathbf{r}')\rangle\right] = \\
+		\int d\mathbf{r} d\mathbf{r}' g(\mathbf{r}, \mathbf{r}') \left[\delta(\mathbf{r} - \mathbf{r}')\bar{n}(\mathbf{r}) + \bar{n}(\mathbf{r})\bar{n}(\mathbf{r'})(1 + \langle\delta(\mathbf{r})\delta(\mathbf{r}')\rangle)\right]
+	\end{multline}
+
+	Applying to $q_i$ we obtain
+	\begin{equation}
+		\langle q_i\rangle = \int d\mathbf{r}d\mathbf{r}' E_i(\mathbf{r}, \mathbf{r}') + \int d\mathbf{r}\frac{E_i(\mathbf{r}, \mathbf{r})}{\bar{n}(\mathbf{r})} + \int d\mathbf{r}d\mathbf{r}' E_i(\mathbf{r}, \mathbf{r}')\langle\delta(\mathbf{r})\delta(\mathbf{r}')\rangle
+	\end{equation}
+
+	Transforming to Fourier space $\hat{E}_i(\mathbf{k}, \mathbf{k}') = \int E_i(\mathbf{r}, \mathbf{r}') e^{-i\mathbf{k}\cdot\mathbf{r} + i\mathbf{k}'\cdot\mathbf{r}'} d\mathbf{r}d\mathbf{r}'$ and defining $W_i(\mathbf{k}) = \hat{E}_i(\mathbf{k}, \mathbf{k})$ we get
+	\begin{equation}
+		\label{eq:band:mean}
+		\langle q_i\rangle = W_i(0) + \int d\mathbf{r}\frac{E_i(\mathbf{r}, \mathbf{r})}{\bar{n}(\mathbf{r})} + \int W_i(\mathbf{k})P(k)\frac{d^3k}{(2\pi)^3}
+	\end{equation}
+
+	In traditional methods one takes $E_i(\mathbf{r}, \mathbf{r}') = \psi_i(\mathbf{r})\psi_i(\mathbf{r}')^*$. Then $W_i(\mathbf{k}) = |\hat{\psi}_i(\mathbf{k})|^2$ and judging from formula~\ref{eq:band:mean} we expect that if we find a function $\psi_i(\mathbf{r})$ well localized in Fourier space (for instance around a wave vector $\mathbf{k}$), we can directly probe $P(k)$. One takes then $\psi_i(\mathbf{r}) = e^{i\mathbf{k}_i\cdot\mathbf{r}}\phi(\mathbf{r})$, where $\phi(\mathbf{r})$ is a slowly varying function along survey's volume and $\mathbf{k}_i$ is a chosen grid of probed wave vectors. In a following subsection, we are going to analyze a particular method which chooses such $\phi(\mathbf{r})$ that variation of band estimate $q_i$ is minimized.
+	
+	\subsection{FKP method}
+	In order to get rid of $W_i(0)$ in~\ref{eq:band:mean} authors of FKP method~\cite{feldman:1994} use technique of mock or synthetic catalogs. In equation~\ref{eq:band:def}, $n(\mathbf{r})$ is changed to $n_g(\mathbf{r}) - \alpha n_s(\mathbf{r})$, where $n_g(\mathbf{r})$ is an observed empirical galaxy distribution and $n_s(\mathbf{r})$ is an empirical distribution of galaxies in synthetic catalog. It's characterized by $\bar{n}(\mathbf{r}) = \alpha \bar{n}_s(\mathbf{r})$ and absence of perturbations. We take $E_i(\mathbf{r}, \mathbf{r}') = \phi(\mathbf{r})\phi(\mathbf{r}')e^{i\mathbf{k}_i(\mathbf{r} - \mathbf{r}')}$ according to the discussion above. Making a similar to~\ref{eq:band:mean} computation we obtain
+	\begin{equation}
+		\label{eq:band:fkp}
+		\langle q_i\rangle = (1 + \alpha)\int d\mathbf{r}\frac{\phi^2(\mathbf{r})}{\bar{n}(\mathbf{r})} + \int |\hat{\phi}(\mathbf{k} - \mathbf{k}_i)|^2 P(k)\frac{d^3k}{(2\pi)^3}
+	\end{equation}
+
+	Since $\phi(\mathbf{r})$ varies slowly on a scale of survey volume, $|\hat{\phi}(\mathbf{k} - \mathbf{k}_i)|^2$ is highly concentrated around $\mathbf{k}\approx\mathbf{k}_i$ and $P(k)$ can be moved out of the integral as a constant if it varies slowly enough. Using Parseval theorem one gets
+	\begin{equation}
+		\langle q_i\rangle\approx\int \phi^2(\mathbf{r})\left[\frac{1 + \alpha}{\bar{n}(\mathbf{r})} + P(\mathbf{k}_i)\right] d\mathbf{r}
+	\end{equation}
+	We normalize $\int \phi^2(\mathbf{r}) d\mathbf{r} = 1$. Then we can estimate $P(\mathbf{k})$ as
+	\begin{equation}
+		\label{eq:spectrum:estimate}
+		\hat{P}(\mathbf{k}) = \hat{q}_i - (1 + \alpha)\int \frac{\phi^2(\mathbf{r})}{\bar{n}(\mathbf{r})};\quad \hat{q}_i = \left|\sum_{\beta\in g} \frac{\phi(r_\beta)e^{i\mathbf{k}\cdot\mathbf{r}_\beta}}{\bar{n}(\mathbf{r}_\beta)} - \alpha\sum_{\beta\in s} \frac{\phi(r_\beta)e^{i\mathbf{k}\cdot\mathbf{r}_\beta}}{\bar{n}(\mathbf{r}_\beta)}\right|^2
+	\end{equation}
+
+	One then averages over direction of $\mathbf{k_i}$ and over a shell of volume $V_k$ of thickness $|k_i - k_{i + 1}|\gg 1/L$, where $L$ is survey's typical size, estimating
+	\begin{equation}
+		\hat{P}(k) = \frac{1}{V_k}\int d\mathbf{k}' \hat{P}(\mathbf{k}')
+	\end{equation}
+
+	If one defines $\delta \hat{P}(\mathbf{k}) = \hat{P}(\mathbf{k}) - P(\mathbf{k})$ and in analogy for averages estimate $\hat{P}(k)$, dispersion of $\hat{P}(k)$ estimate can be written as
+	\begin{equation}
+		\langle\delta \hat{P}(k)^2\rangle = \frac{1}{V_k^2}\int d\mathbf{k}d\mathbf{k}' \langle\delta \hat{P}(\mathbf{k})\delta \hat{P}(\mathbf{k}')\rangle
+	\end{equation}
+	Note that estimate~\ref{eq:spectrum:estimate} can be written as
+	\begin{equation}
+		\hat{P}(\mathbf{k}) = |F(\mathbf{k})|^2 - P_{\text{shot}};\quad F(\mathbf{k}) = \int d\mathbf{r} \frac{\phi(\mathbf{r})e^{i\mathbf{k}\cdot\mathbf{r}}}{\bar{n}(\mathbf{r})}[n_g(\mathbf{r}) - \alpha n_s(\mathbf{r})];\quad P_{\text{shot}} = (1 + \alpha)\int \frac{\phi^2(\mathbf{r})}{\bar{n}(\mathbf{r})}
+	\end{equation}
+
+	We assume that $F(\mathbf{k})$ is a Gaussian variable, which is justified by gaussianity of perturbations and by law of large numbers when galaxy survey is sufficiently numerous. Using the fact that $\langle\hat{P}(\mathbf{k})\rangle = P(\mathbf{k})$ and Wick's theorem, one rewrites correlation of error estimates
+	\begin{multline}
+		\langle\delta \hat{P}(\mathbf{k})\delta \hat{P}(\mathbf{k}')\rangle = \langle F(\mathbf{k})F^*(\mathbf{k})F(\mathbf{k}')F^*(\mathbf{k}')\rangle - \langle F(\mathbf{k})F^*(\mathbf{k})\rangle\langle F(\mathbf{k}')F^*(\mathbf{k}')\rangle =\\
+		|\langle F(\mathbf{k})F^*(\mathbf{k}')\rangle|^2 + |\langle F(\mathbf{k})F(\mathbf{k}')\rangle|^2
+	\end{multline}
+	Averages can be computed in analogy with~\ref{eq:band:fkp} to get
+	\begin{multline}
+		\langle F(\mathbf{k})F^*(\mathbf{k}')\rangle = (1 + \alpha)\int \frac{\phi^2(\mathbf{r})e^{i\mathbf{r}\cdot(\mathbf{k} - \mathbf{k}')}}{\bar{n}(\mathbf{r})} d\mathbf{r} + \int \hat{\phi}(\mathbf{k} - \mathbf{k}'')\hat{\phi}(\mathbf{k}' - \mathbf{k}'')\frac{P(\mathbf{k}'')d\mathbf{k}''}{(2\pi)^3}\approx\\
+		(1 + \alpha)\int \frac{\phi^2(\mathbf{r})e^{i\mathbf{r}\cdot(\mathbf{k} - \mathbf{k}')}}{\bar{n}(\mathbf{r})} d\mathbf{r} + P(k)\int \phi^2(\mathbf{r})e^{i\mathbf{r}\cdot(\mathbf{k} - \mathbf{k}')} d\mathbf{r}
+	\end{multline}
+	where we have again used that $P(k)$ is slowly changing, while $\hat{\phi}$ are tightly concentrated around zero. Second term is anagolous, changing $\mathbf{k}'\to -\mathbf{k}'$. Due to spherical symmetry of shell both terms make same contribution when averaged over shell and we obtain
+	\begin{equation}
+		\langle\delta\hat{P}(k)^2\rangle = \frac{2}{V_k^2}\int d\mathbf{k}d\mathbf{k'}\int d\mathbf{r} U(\mathbf{r})e^{i\mathbf{r}(\mathbf{k} - \mathbf{k}')}\int d\mathbf{r'}U(\mathbf{r})e^{-i\mathbf{r}'(\mathbf{k} - \mathbf{k}')};\ U(\mathbf{r}) = \phi^2(\mathbf{r})\left[P(k) + \frac{1 + \alpha}{\bar{n}(\mathbf{r})}\right]
+	\end{equation}
+	Since $U(\mathbf{r})$ is slowly varying and only neighborhood $\mathbf{k}\approx\mathbf{k}'$ contributes, we can change integration in wave vector $\mathbf{k}$ over whole volume. Integration over $\mathbf{k}'$ gives $V_k$, resulting integral greatly simplifies to 
+	\begin{equation}
+		\langle\delta\hat{P}(k)^2\rangle = \frac{2}{V_k^2}\int d\mathbf{k} |\hat{U}(\mathbf{k})|^2 = \frac{2}{V_k^2}\int d\mathbf{r} \phi^4(\mathbf{r})\left[P(k) + \frac{1 + \alpha}{\bar{n}(\mathbf{r})}\right]^2
+	\end{equation}
+	Minimizing the dispersion with respect to $\phi(\mathbf{r})$ normalization of $L_2$-norm we get that
+	\begin{equation}
+		\phi(\mathbf{r})\sim\frac{\bar{n}(\mathbf{r})P(k)}{1 + \alpha + \bar{n}(\mathbf{r})P(k)}\approx \frac{\bar{n}(\mathbf{r})P(k)}{1 + \bar{n}(\mathbf{r})P(k)}
+	\end{equation}
+	since usually one takes $\alpha\ll 1$.
 	
 	\bibliographystyle{plain}
 	\bibliography{refs.bib}
