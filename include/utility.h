@@ -1,8 +1,17 @@
-//
-// Created by roman on 05.12.22.
-//
+#include <vector>
 
-#ifndef CONVENTIONAL_UTILITY_H
-#define CONVENTIONAL_UTILITY_H
+template<class T>
+std::vector<T> linSpace(T begin, T end, size_t pointsNum) {
+    std::vector<T> vector;
+    vector.reserve(pointsNum + 1);
 
-#endif //CONVENTIONAL_UTILITY_H
+    auto step = (end - begin) / pointsNum;
+    auto value = begin;
+
+    for (size_t i = 0; i <= pointsNum; ++i) {
+        vector.push_back(value);
+        value += step;
+    }
+
+    return vector;
+}

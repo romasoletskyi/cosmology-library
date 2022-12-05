@@ -59,7 +59,29 @@ TEST(ParserTest, Complex) {
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
 }
 
+TEST(OdeSolver, Basic) {
+    OdeSolver<float, float> solver;
+    solver.addVariable("x");
+    solver.addEquation("x' = x");
+
+    size_t size = 10;
+    auto grid = linSpace<float>(0, 1, size);
+    float dt = grid[1] - grid[0];
+    solver.setGrid(grid);
+
+    auto solution = solver.solve({1});
+
+    std::vector<float> diff;
+    diff.reserve(size);
+    for (size_t i = 0; i < solution.size(); ++i) {
+        diff.push_back(std::abs(solution[i][0] - (float) std::pow(1 / (1 - dt), i)));
+    }
+
+    ASSERT_LT(*std::max_element(diff.begin(), diff.end()), 1e-3);
+}
+
 int main() {
     ::testing::InitGoogleTest();
+    ::testing::GTEST_FLAG(filter) = "OdeSolver*";
     return RUN_ALL_TESTS();
 }
