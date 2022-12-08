@@ -31,19 +31,53 @@ class OdeSolver {
 public:
     using State = std::vector<Value>;
     using CoeffFunc = std::function<Value(Time)>;
+    using ExplicitFunc = std::function<Value(Time, std::vector<Value>)>;
+
+    struct Solution {
+        Solution(int gridLength_, int variableNumber_) : data(new Value[gridLength_ * variableNumber_]),
+                                                         gridLength(gridLength_), variableNumber(variableNumber_) {
+        }
+
+        const Value *getState(int i) const {
+            return data + i * variableNumber;
+        }
+
+        Value operator()(int i, int j) const {
+            return data[i * variableNumber + j];
+        }
+
+        Value &operator()(int i, int j) {
+            return data[i * variableNumber + j];
+        }
+
+        ~Solution() {
+            delete[] data;
+        }
+
+        Value *data;
+        int gridLength, variableNumber;
+    };
 
 public:
     void addVariable(std::string variable) {
-        variables_.emplace_back(std::move(variable));
+        checkName(variable);
+        variables_.emplace_back(variable);
     }
 
     void addCoefficient(std::string coefficient, CoeffFunc value) {
-        coefficients_.emplace_back(std::move(coefficient));
-        coefficientValues_.emplace_back(std::move(value));
+        checkName(coefficient);
+        coefficients_.emplace_back(coefficient);
+        coefficientValues_.emplace_back(value);
+    }
+
+    void addExplicitFunction(std::string function, ExplicitFunc value, std::vector<std::string> variables) {
+        checkName(function);
+        functions_.emplace_back(function);
+        functionValues_.emplace_back(value, variables);
     }
 
     void addEquation(std::string equation) {
-        equations_.emplace_back(std::move(equation));
+        equations_.emplace_back(equation);
     }
 
     void setGrid(std::vector<Time> grid) {
@@ -51,21 +85,19 @@ public:
     }
 
     template<class Walker>
-    std::vector<State> solve(const State &initialState) {
-        std::vector<State> states;
-        states.reserve(grid_.size());
-
-        State state = initialState;
-        states.push_back(state);
-
+    Solution solve(const State &initialState) {
         auto walker = Walker(matrix::SystemBuilder<Value, Time>().build(*this), grid_);
 
-        for (size_t i = 1; i < grid_.size(); ++i) {
-            state = walker.next(state);
-            states.push_back(state);
+        Solution solution(grid_.size(), variables_.size());
+        for (int j = 0; j < solution.variableNumber; ++j) {
+            solution(0, j) = initialState[j];
         }
 
-        return states;
+        for (size_t i = 0; i < grid_.size() - 1; ++i) {
+            walker.next(solution, i);
+        }
+
+        return solution;
     }
 
     const std::vector<std::string> &getVariables() const {
@@ -73,11 +105,25 @@ public:
     }
 
 private:
+    void checkName(const std::string &name) {
+        if (name[0] >= '0' && name[0] <= '9') {
+            throw std::logic_error("name can't start from a number");
+        }
+        if (namespace_.count(name)) {
+            throw std::logic_error("this name was already added");
+        }
+        namespace_.insert(name);
+    }
+
+private:
     friend class matrix::SystemBuilder<Value, Time>;
 
+    std::unordered_set<std::string> namespace_;
     std::vector<std::string> variables_;
     std::vector<std::string> coefficients_;
     std::vector<CoeffFunc> coefficientValues_;
+    std::vector<std::string> functions_;
+    std::vector<std::pair<ExplicitFunc, std::vector<std::string>>> functionValues_;
     std::vector<std::string> equations_;
     std::vector<Time> grid_;
 };
@@ -216,11 +262,11 @@ namespace matrix {
 
             Mat matrix;
             std::vector<std::pair<int, int>> entries;
-            std::vector<std::function<Value(Time)>> coefficients;
+            std::vector<std::function<Value(Time, const Value *)>> coefficients;
 
-            void update(Time time) {
+            void update(Time time, const Value *state) {
                 for (size_t i = 0; i < entries.size(); ++i) {
-                    matrix(entries[i].first, entries[i].second) = coefficients[i](time);
+                    matrix(entries[i].first, entries[i].second) = coefficients[i](time, state);
                 }
             }
         };
@@ -228,13 +274,13 @@ namespace matrix {
     public:
         using Mat = typename Matrix::Mat;
 
-        const Mat &getMatrix(Time time) {
-            matrix_.update(time);
+        const Mat &getMatrix(Time time, const Value *state) {
+            matrix_.update(time, state);
             return matrix_.matrix;
         }
 
-        const Mat &getSource(Time time) {
-            source_.update(time);
+        const Mat &getSource(Time time, const Value *state) {
+            source_.update(time, state);
             return source_.matrix;
         }
 
@@ -255,39 +301,10 @@ namespace matrix {
 
             variableToIndex = createVectorToIndex(solver.variables_);
             coefficientToIndex = createVectorToIndex(solver.coefficients_);
-
-            if (variableToIndex.size() != solver.variables_.size() ||
-                coefficientToIndex.size() != solver.coefficients_.size()) {
-                throw std::logic_error("names of variables/coefficients can't repeat");
-            }
-
-            for (const auto &name: solver.variables_) {
-                if (coefficientToIndex.count(name)) {
-                    throw std::logic_error("variable can't be coefficient simultaneously");
-                }
-            }
-
-            for (const auto &variable: solver.variables_) {
-                if (checkNumericStart(variable)) {
-                    throw std::logic_error("variable name can't start from a number");
-                }
-            }
-
-            for (const auto &coefficient: solver.coefficients_) {
-                if (checkNumericStart(coefficient)) {
-                    throw std::logic_error("coefficient name can't start from a number");
-                }
-            }
-
-            if (varnum != solver.equations_.size()) {
-                throw std::logic_error("number of equations is not equal to number of variables");
-            }
+            functionToIndex = createVectorToIndex(solver.functions_);
 
             parser::Trie trie;
-            for (const auto &name: solver.variables_) {
-                trie.addString(name);
-            }
-            for (const auto &name: solver.coefficients_) {
+            for (const auto &name: solver.namespace_) {
                 trie.addString(name);
             }
 
@@ -352,6 +369,7 @@ namespace matrix {
             bool containsVariable = false;
             size_t column;
             std::vector<typename OdeSolver<Value, Time>::CoeffFunc> coefficients;
+            std::vector<std::pair<std::vector<int>, typename OdeSolver<Value, Time>::ExplicitFunc>> functions;
             Value constant = sign;
 
             for (const auto &[lex, name]: batch) {
@@ -366,6 +384,14 @@ namespace matrix {
                         column = variableToIndex.at(name);
                     } else if (coefficientToIndex.count(name)) {
                         coefficients.push_back(solver.coefficientValues_[coefficientToIndex.at(name)]);
+                    } else if (functionToIndex.count(name)) {
+                        auto [function, variableNames] = solver.functionValues_[functionToIndex.at(name)];
+                        std::vector<int> indices;
+                        indices.reserve(variableNames.size());
+                        for (const auto &variable: variableNames) {
+                            indices.push_back(variableToIndex.at(variable));
+                        }
+                        functions.emplace_back(indices, function);
                     } else {
                         throw std::logic_error("unknown variable/coefficient name");
                     }
@@ -375,36 +401,44 @@ namespace matrix {
             if (containsVariable) {
                 system.matrix_.entries.emplace_back(row, column);
                 system.matrix_.coefficients.emplace_back(
-                        [constant, coeffs = std::move(coefficients)](Time time) {
-                            return SystemBuilder::calculateEntry(constant, coeffs, time);
+                        [constant, coeffs = std::move(coefficients), funcs = std::move(functions)](Time time,
+                                                                                                   const Value *value) {
+                            return SystemBuilder::calculateEntry(constant, coeffs, funcs, time, value);
                         });
             } else {
                 system.source_.entries.emplace_back(row, 0);
                 system.source_.coefficients.emplace_back(
-                        [constant, coeffs = std::move(coefficients)](Time time) {
-                            return SystemBuilder::calculateEntry(constant, coeffs, time);
+                        [constant, coeffs = std::move(coefficients), funcs = std::move(functions)](Time time,
+                                                                                                   const Value *value) {
+                            return SystemBuilder::calculateEntry(constant, coeffs, funcs, time, value);
                         });
             }
         }
 
         static Value calculateEntry(Value multiplier,
                                     const std::vector<typename OdeSolver<Value, Time>::CoeffFunc> &coefficients,
-                                    Time time) {
+                                    const std::vector<std::pair<std::vector<int>, typename OdeSolver<Value, Time>::ExplicitFunc>> functions,
+                                    Time time, const Value *value) {
             Value entry = multiplier;
             for (const auto &coefficient: coefficients) {
                 entry *= coefficient(time);
             }
+            for (const auto &[indices, function]: functions) {
+                std::vector<Value> values;
+                values.reserve(indices.size());
+                for (int index: indices) {
+                    values.push_back(value[index]);
+                }
+                entry *= function(time, std::move(values));
+            }
             return entry;
-        }
-
-        bool checkNumericStart(const std::string &string) {
-            return string[0] >= '0' && string[0] <= '9';
         }
 
     private:
         System<Value, Time> system;
         std::unordered_map<std::string, size_t> variableToIndex;
         std::unordered_map<std::string, size_t> coefficientToIndex;
+        std::unordered_map<std::string, size_t> functionToIndex;
     };
 }
 
@@ -413,7 +447,7 @@ namespace walker {
     class Walker {
     public:
         Walker(matrix::System<Value, Time> system, const std::vector<Time> &grid) : system_(system),
-                                                                                           grid_(grid) {
+                                                                                    grid_(grid) {
         }
 
     protected:
@@ -430,26 +464,21 @@ namespace walker {
     public:
         using Walker<Value, Time>::Walker;
 
-        auto next(const typename OdeSolver<Value, Time>::State &state) {
+        void next(typename OdeSolver<Value, Time>::Solution &solution, size_t step) {
             using Mat = typename matrix::System<Value, Time>::Mat;
 
-            Time time = this->grid_[step_ + 1];
-            Time dt = time - this->grid_[step_];
-            Mat mat = Mat::Identity(state.size(), state.size()) - dt * this->system_.getMatrix(time);
-            Mat source = Eigen::Map<const Mat>(state.data(), state.size(), 1) + dt * this->system_.getSource(time);
+            Time time = this->grid_[step + 1];
+            Time dt = time - this->grid_[step];
+            Mat mat = Mat::Identity(solution.variableNumber, solution.variableNumber) -
+                      dt * this->system_.getMatrix(time, solution.getState(step));
+            Mat source = Eigen::Map<const Mat>(solution.getState(step), solution.variableNumber, 1) +
+                         dt * this->system_.getSource(time, solution.getState(step));
             Mat nextMatState = mat.colPivHouseholderQr().solve(source);
-            ++step_;
 
-            auto nextState = state;
-            for (size_t i = 0; i < nextState.size(); ++i) {
-                nextState[i] = nextMatState(i, 0);
+            for (size_t j = 0; j < solution.variableNumber; ++j) {
+                solution(step + 1, j) = nextMatState(j, 0);
             }
-
-            return nextState;
         }
-
-    private:
-        size_t step_ = 0;
     };
 
     // Standard 4-step Runge-Kutta method
@@ -458,33 +487,27 @@ namespace walker {
     public:
         using Walker<Value, Time>::Walker;
 
-        auto next(const typename OdeSolver<Value, Time>::State &state) {
-            Time time = this->grid_[step_];
-            Time dt = this->grid_[step_ + 1] - time;
-            ++step_;
+        void next(typename OdeSolver<Value, Time>::Solution &solution, size_t step) {
+            Time time = this->grid_[step];
+            Time dt = this->grid_[step + 1] - time;
 
-            Mat matState = Eigen::Map<const Mat>(state.data(), state.size(), 1);
+            Mat matState = Eigen::Map<const Mat>(solution.getState(step), solution.variableNumber, 1);
             Mat k1 = getDerivative(matState, time);
             Mat k2 = getDerivative(matState + k1 * dt / 2, time + dt / 2);
             Mat k3 = getDerivative(matState + k2 * dt / 2, time + dt / 2);
             Mat k4 = getDerivative(matState + k3 * dt, time + dt);
 
             Mat nextMatState = matState + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-            auto nextState = state;
-            for (size_t i = 0; i < nextState.size(); ++i) {
-                nextState[i] = nextMatState(i, 0);
+            for (size_t j = 0; j < solution.variableNumber; ++j) {
+                solution(step + 1, j) = nextMatState(j, 0);
             }
-
-            return nextState;
         }
 
     private:
         using Mat = typename matrix::System<Value, Time>::Mat;
-        auto getDerivative(const Mat& state, Time time) {
-            return this->system_.getMatrix(time) * state + this->system_.getSource(time);
-        }
 
-    private:
-        size_t step_ = 0;
+        auto getDerivative(const Mat &state, Time time) {
+            return this->system_.getMatrix(time, state.data()) * state + this->system_.getSource(time, state.data());
+        }
     };
 } // namespace walker

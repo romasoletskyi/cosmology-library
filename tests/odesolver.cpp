@@ -77,27 +77,43 @@ TEST(SystemBuilder, Complex) {
 
     auto system = matrix::SystemBuilder<float, float>().build(solver);
     for (auto time: linSpace<float>(0, 1, 5)) {
-        auto mat = system.getMatrix(time);
+        auto mat = system.getMatrix(time, nullptr);
         Eigen::MatrixXf diff = mat - Eigen::MatrixXf{{-time,           1},
                                           {1 - time * time, time}};
         ASSERT_LT(std::abs(diff(0, 0)) + std::abs(diff(0, 1)) + std::abs(diff(1, 0)) + std::abs(diff(1, 1)), 1e-5) << " " << diff;
     }
 
     for (auto time: linSpace<float>(0, 1, 5)) {
-        auto source = system.getSource(time);
+        auto source = system.getSource(time, nullptr);
         ASSERT_LT(std::abs(source(0, 0)) + std::abs(source(1, 0)), 1e-5);
     }
 }
 
-float compareSolutions(const std::vector<float> &grid, const std::vector<std::vector<float>> &solution,
+TEST(SystemBuilder, NonLinear) {
+    OdeSolver<float, float> solver;
+
+    solver.addVariable("x");
+    solver.addExplicitFunction("f", [](float time, std::vector<float> data){
+        return data[0] * data[0];
+    }, {"x"});
+    solver.addEquation("x' = f");
+
+    auto system = matrix::SystemBuilder<float, float>().build(solver);
+    for (auto x: linSpace<float>(0, 1, 5)) {
+        auto mat = system.getSource(0, &x);
+        ASSERT_EQ(mat(0, 0), x * x);
+    }
+}
+
+float compareSolutions(const std::vector<float> &grid, const OdeSolver<float, float>::Solution &solution,
                        const std::function<std::vector<float>(float)> &precise) {
     float maxDiff = 0;
-    for (size_t i = 0; i < solution.size(); ++i) {
+    for (int i = 0; i < solution.gridLength; ++i) {
         float diff = 0;
         auto preciseSolution = precise(grid[i]);
 
-        for (size_t j = 0; j < solution[i].size(); ++j) {
-            diff += std::abs(solution[i][j] - preciseSolution[j]);
+        for (int j = 0; j < solution.variableNumber; ++j) {
+            diff += std::abs(solution(i, j) - preciseSolution[j]);
         }
 
         if (diff > maxDiff) {
@@ -155,6 +171,6 @@ TEST(OdeSolver, RungeKutta) {
 
 int main() {
     ::testing::InitGoogleTest();
-    // ::testing::GTEST_FLAG(filter) = "OdeSolver*";
+    // ::testing::GTEST_FLAG(filter) = "SystemBuilder*NonLinear";
     return RUN_ALL_TESTS();
 }
