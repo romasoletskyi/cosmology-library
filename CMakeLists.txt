@@ -15,3 +15,5 @@ set(INCLUDE include/perturbations.h
 
 add_executable(odesolver ${INCLUDE} tests/odesolver.cpp)
 target_link_libraries(odesolver ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+
+add_executable(perturbations ${INCLUDE} tests/perturbations.cpp)

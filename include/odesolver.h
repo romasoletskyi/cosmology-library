@@ -19,12 +19,11 @@ namespace matrix {
  * solver.addVariable("x");
  * solver.addEquation("x' = x");
  * solver.setGrid(linSpace<float>(0, 1, 10));
- * solver.solve({1});
+ * solver.solve<walker::RungeKuttaWalker<float, float>>({1});
  *
  * ODE syntax requirements:
- * 1. All ODEs are linear
- * 2. All variables are space delimited (x' = 5 x)
- * 3. Left part contains only time derivative of one variable (x' = ...)
+ * 1. All variables are space delimited (x' = 5 x)
+ * 2. Left part contains only time derivative of one variable (x' = ...)
  */
 template<class Value, class Time>
 class OdeSolver {
