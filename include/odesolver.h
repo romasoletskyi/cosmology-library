@@ -85,6 +85,7 @@ public:
 
     template<class Walker>
     Solution solve(const State &initialState) {
+        makeSubstitutions();
         auto walker = Walker(matrix::SystemBuilder<Value, Time>().build(*this), grid_);
 
         Solution solution(grid_.size(), variables_.size());
@@ -98,6 +99,8 @@ public:
 
         return solution;
     }
+
+    void makeSubstitutions();
 
     const std::vector<std::string> &getVariables() const {
         return variables_;
@@ -180,7 +183,7 @@ namespace parser {
     };
 
     enum Lexeme {
-        Left, Right, Plus, Minus, Derivative, Number, End
+        Left, Right, Plus, Minus, Derivative, LeftBracket, RightBracket, Number, End
     };
 
     class EquationParser {
@@ -200,6 +203,10 @@ namespace parser {
                         return {Lexeme::Plus, ""};
                     } else if (c == '-') {
                         return {Lexeme::Minus, ""};
+                    } else if (c == '(') {
+                        return {Lexeme::LeftBracket, ""};
+                    } else if (c == ')') {
+                        return {Lexeme::RightBracket, ""};
                     } else if (c == '\'') {
                         if (!left_) {
                             throw std::logic_error("can't have derivative in the right part of an equation ");
@@ -246,7 +253,7 @@ namespace parser {
     private:
         std::istream &stream_;
         const Trie &trie_;
-        inline static const std::unordered_set<char> specialSymbols_{'+', '-', '*', '=', '\'', ' '};
+        inline static const std::unordered_set<char> specialSymbols_{'+', '-', '*', '=', '\'', ' ', '(', ')'};
         bool left_ = true;
     };
 } // namespace parser
@@ -264,8 +271,12 @@ namespace matrix {
             std::vector<std::function<Value(Time, const Value *)>> coefficients;
 
             void update(Time time, const Value *state) {
+                for (auto [i, j]: entries) {
+                    matrix(i, j) = 0;
+                }
+
                 for (size_t i = 0; i < entries.size(); ++i) {
-                    matrix(entries[i].first, entries[i].second) = coefficients[i](time, state);
+                    matrix(entries[i].first, entries[i].second) += coefficients[i](time, state);
                 }
             }
         };
@@ -332,22 +343,32 @@ namespace matrix {
 
             auto [lexeme, variable] = parser.next();
             size_t row = variableToIndex.at(variable);
-            if (lexeme != Lexeme::Left && parser.next().first != Lexeme::Derivative) {
+            if (parser.next().first != Lexeme::Derivative) {
                 throw std::logic_error("an equation has to start from variable's derivative");
             }
 
             int sign = 1;
             std::pair<Lexeme, std::string> word;
             std::vector<std::pair<Lexeme, std::string>> batch;
+            std::vector<int> batchSizes = {0};
 
             do {
                 word = parser.next();
                 if (word.first == Lexeme::Right || word.first == Lexeme::Number) {
                     batch.push_back(word);
+                    ++batchSizes.back();
+                } else if (word.first == Lexeme::LeftBracket) {
+                    batchSizes.push_back(0);
                 } else {
                     if (!batch.empty()) {
                         insertBatch(sign, row, batch, solver);
-                        batch.clear();
+                        batch.resize(batch.size() - batchSizes.back());
+                        batchSizes.back() = 0;
+                        if (word.first == Lexeme::RightBracket) {
+                            batchSizes.pop_back();
+                            batch.resize(batch.size() - batchSizes.back());
+                            batchSizes.back() = 0;
+                        }
                     }
                     if (word.first == Lexeme::Minus) {
                         sign = -1;
@@ -510,3 +531,45 @@ namespace walker {
         }
     };
 } // namespace walker
+
+template<class Value, class Time>
+void OdeSolver<Value, Time>::makeSubstitutions() {
+    using namespace parser;
+
+    Trie trie;
+    for (const auto &name: namespace_) {
+        trie.addString(name);
+    }
+
+    std::vector<std::string> variables;
+    std::vector<std::string> equations;
+    std::vector<std::pair<std::string, std::string>> substitutions;
+
+    for (const auto& equation: equations_) {
+        std::stringstream stream(equation);
+        EquationParser parser(trie, stream);
+
+        auto [lexeme, variable] = parser.next();
+        if (parser.next().first == Lexeme::Derivative) {
+            variables.emplace_back(variable);
+            equations.emplace_back(equation);
+        } else {
+            auto s = equation.substr(equation.find('=') + 1);
+            s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char c){ return !std::isspace(c); }));
+            substitutions.emplace_back(variable, "(" + s + ")");
+        }
+    }
+
+    for (auto& equation: equations) {
+        for (const auto& [variable, substitute]: substitutions) {
+            for (std::string::size_type pos{};
+                 std::string::npos != (pos = equation.find(variable.data(), pos, variable.size()));
+                 pos = variable.size()) {
+                equation.replace(pos, variable.size(), substitute.data(), substitute.size());
+            }
+        }
+    }
+
+    variables_ = std::move(variables);
+    equations_ = std::move(equations);
+}

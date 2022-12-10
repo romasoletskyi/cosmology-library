@@ -105,6 +105,49 @@ TEST(SystemBuilder, NonLinear) {
     }
 }
 
+TEST(SystemBuilder, Brackets) {
+    OdeSolver<float, float> solver;
+
+    solver.addVariable("x");
+    solver.addVariable("y");
+
+    solver.addCoefficient("a", [](float time){ return time * time; });
+    solver.addCoefficient("b", [](float time){ return time; });
+
+    solver.addEquation("x' = x (a - b)");
+    solver.addEquation("y' = b (x + y)");
+
+    auto system = matrix::SystemBuilder<float, float>().build(solver);
+    for (auto time: linSpace<float>(0, 1, 5)) {
+        auto mat = system.getMatrix(time, nullptr);
+        ASSERT_EQ(mat(0, 0), time * time - time);
+        ASSERT_EQ(mat(0, 1), 0);
+        ASSERT_EQ(mat(1, 0), time);
+        ASSERT_EQ(mat(1, 1), time);
+    }
+}
+
+TEST(SystemBuilder, Substitution) {
+    OdeSolver<float, float> solver;
+
+    solver.addVariable("x");
+    solver.addVariable("y");
+
+    solver.addCoefficient("a", [](float time){ return time * time; });
+    solver.addCoefficient("b", [](float time){ return time; });
+
+    solver.addEquation("x' = b x + a y");
+    solver.addEquation("y = b x");
+    solver.makeSubstitutions();
+
+    auto system = matrix::SystemBuilder<float, float>().build(solver);
+    for (auto time: linSpace<float>(0, 1, 5)) {
+        auto mat = system.getMatrix(time, nullptr);
+        ASSERT_TRUE(mat.cols() == 1 && mat.rows() == 1);
+        ASSERT_EQ(mat(0, 0), time + time * time * time);
+    }
+}
+
 float compareSolutions(const std::vector<float> &grid, const OdeSolver<float, float>::Solution &solution,
                        const std::function<std::vector<float>(float)> &precise) {
     float maxDiff = 0;
@@ -171,6 +214,6 @@ TEST(OdeSolver, RungeKutta) {
 
 int main() {
     ::testing::InitGoogleTest();
-    // ::testing::GTEST_FLAG(filter) = "SystemBuilder*NonLinear";
+    ::testing::GTEST_FLAG(filter) = "SystemBuilder*Substitution";
     return RUN_ALL_TESTS();
 }
