@@ -59,7 +59,7 @@ TEST(ParserTest, Complex) {
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
 }
 
-TEST(SystemBuilder, Complex) {
+TEST(SystemBuilder, TwoEquations) {
     OdeSolver<float, float> solver;
 
     solver.addVariable("x");
@@ -79,8 +79,9 @@ TEST(SystemBuilder, Complex) {
     for (auto time: linSpace<float>(0, 1, 5)) {
         auto mat = system.getMatrix(time, nullptr);
         Eigen::MatrixXf diff = mat - Eigen::MatrixXf{{-time,           1},
-                                          {1 - time * time, time}};
-        ASSERT_LT(std::abs(diff(0, 0)) + std::abs(diff(0, 1)) + std::abs(diff(1, 0)) + std::abs(diff(1, 1)), 1e-5) << " " << diff;
+                                                     {1 - time * time, time}};
+        ASSERT_LT(std::abs(diff(0, 0)) + std::abs(diff(0, 1)) + std::abs(diff(1, 0)) + std::abs(diff(1, 1)), 1e-5)
+                                    << " " << diff;
     }
 
     for (auto time: linSpace<float>(0, 1, 5)) {
@@ -93,7 +94,7 @@ TEST(SystemBuilder, NonLinear) {
     OdeSolver<float, float> solver;
 
     solver.addVariable("x");
-    solver.addExplicitFunction("f", [](float time, std::vector<float> data){
+    solver.addExplicitFunction("f", [](float time, std::vector<float> data) {
         return data[0] * data[0];
     }, {"x"});
     solver.addEquation("x' = f");
@@ -111,8 +112,8 @@ TEST(SystemBuilder, Brackets) {
     solver.addVariable("x");
     solver.addVariable("y");
 
-    solver.addCoefficient("a", [](float time){ return time * time; });
-    solver.addCoefficient("b", [](float time){ return time; });
+    solver.addCoefficient("a", [](float time) { return time * time; });
+    solver.addCoefficient("b", [](float time) { return time; });
 
     solver.addEquation("x' = x (a - b)");
     solver.addEquation("y' = b (x + y)");
@@ -133,8 +134,8 @@ TEST(SystemBuilder, Substitution) {
     solver.addVariable("x");
     solver.addVariable("y");
 
-    solver.addCoefficient("a", [](float time){ return time * time; });
-    solver.addCoefficient("b", [](float time){ return time; });
+    solver.addCoefficient("a", [](float time) { return time * time; });
+    solver.addCoefficient("b", [](float time) { return time; });
 
     solver.addEquation("x' = b x + a y");
     solver.addEquation("y = b x");
@@ -145,6 +146,43 @@ TEST(SystemBuilder, Substitution) {
         auto mat = system.getMatrix(time, nullptr);
         ASSERT_TRUE(mat.cols() == 1 && mat.rows() == 1);
         ASSERT_EQ(mat(0, 0), time + time * time * time);
+    }
+}
+
+TEST(SystemBuilder, Complex) {
+    OdeSolver<float, float> solver;
+
+    for (const auto &variable: {"x", "y", "z", "dx"}) {
+        solver.addVariable(variable);
+    }
+
+    solver.addCoefficient("a", [](float time) { return time; });
+    solver.addCoefficient("b", [](float time) { return 2; });
+    solver.addCoefficient("c", [](float time) { return -8 * time * time; });
+    solver.addCoefficient("d", [](float time) { return -3 * time; });
+
+    solver.addEquation("x' = a (dx + z)");
+    solver.addEquation("z' = -3 (dx - y)");
+    solver.addEquation("y = a x + b z");
+    solver.addEquation("dx = c x + d z");
+
+    solver.makeSubstitutions();
+    // after substitutions, we have
+    // x' = (a c) x + a (d + 1) z
+    // z' = 3 (a - c) x + 3 (b - d) z
+    std::vector<std::string> leftVariables = {"x", "z"};
+    ASSERT_EQ(solver.getVariables(), leftVariables);
+
+    auto system = matrix::SystemBuilder<float, float>().build(solver);
+    for (auto time: linSpace<float>(0, 1, 5)) {
+        auto mat = system.getMatrix(time, nullptr);
+        float tol = 1e-5;
+
+        ASSERT_TRUE(mat.cols() == 2 && mat.rows() == 2);
+        ASSERT_NEAR(mat(0, 0), -8 * time * time * time, tol);
+        ASSERT_NEAR(mat(0, 1), time * (-3 * time + 1), tol);
+        ASSERT_NEAR(mat(1, 0), 3 * (time + 8 * time * time), tol);
+        ASSERT_NEAR(mat(1, 1), 3 * (2 + 3 * time), tol);
     }
 }
 
@@ -214,6 +252,6 @@ TEST(OdeSolver, RungeKutta) {
 
 int main() {
     ::testing::InitGoogleTest();
-    ::testing::GTEST_FLAG(filter) = "SystemBuilder*Substitution";
+    // ::testing::GTEST_FLAG(filter) = "SystemBuilder*Complex";
     return RUN_ALL_TESTS();
 }

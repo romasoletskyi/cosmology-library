@@ -347,10 +347,10 @@ namespace matrix {
                 throw std::logic_error("an equation has to start from variable's derivative");
             }
 
-            int sign = 1;
             std::pair<Lexeme, std::string> word;
             std::vector<std::pair<Lexeme, std::string>> batch;
             std::vector<int> batchSizes = {0};
+            std::vector<int> batchSigns = {1, 1};
 
             do {
                 word = parser.next();
@@ -359,21 +359,23 @@ namespace matrix {
                     ++batchSizes.back();
                 } else if (word.first == Lexeme::LeftBracket) {
                     batchSizes.push_back(0);
+                    batchSigns.push_back(batchSigns.back());
                 } else {
-                    if (!batch.empty()) {
-                        insertBatch(sign, row, batch, solver);
+                    if (batchSizes.back()) {
+                        insertBatch(batchSigns.back(), row, batch, solver);
                         batch.resize(batch.size() - batchSizes.back());
                         batchSizes.back() = 0;
                         if (word.first == Lexeme::RightBracket) {
+                            batchSigns.pop_back();
                             batchSizes.pop_back();
                             batch.resize(batch.size() - batchSizes.back());
                             batchSizes.back() = 0;
                         }
                     }
                     if (word.first == Lexeme::Minus) {
-                        sign = -1;
+                        batchSigns.back() = -batchSigns[batchSigns.size() - 2];
                     } else if (word.first == Lexeme::Plus) {
-                        sign = 1;
+                        batchSigns.back() = batchSigns[batchSigns.size() - 2];
                     } else if (word.first == Lexeme::Left) {
                         throw std::logic_error("left part of an equation has to contain only one variable");
                     }
