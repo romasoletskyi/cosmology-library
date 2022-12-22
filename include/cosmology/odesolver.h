@@ -13,6 +13,15 @@ namespace matrix {
 }
 
 /*
+ * ODE syntax requirements:
+ * 1. All variables are space delimited (x' = 5 x)
+ * 2. Left part contains only time derivative of one variable (x' = ...) or definition of variable itself (y = 2 * x)
+ * 3. addCoefficient adds function which depends on time,
+ * 4. addExplicitFunction adds function on time and state at time t_n,
+ *    which is going to be used to compute state at t_{n+1}.
+ *    It cannot use variables defined through the equation (y = ...)
+ * 5. Coefficients and explicit functions MUST be written before the variable (x' = k x)
+ *
  * Solver usage example for the equation x'(t) = x(t); 0<=t<=1
  *
  * auto solver = OdeSolver<float, float>();
@@ -20,10 +29,6 @@ namespace matrix {
  * solver.addEquation("x' = x");
  * solver.setGrid(linSpace<float>(0, 1, 10));
  * solver.solve<walker::RungeKuttaWalker<float, float>>({1});
- *
- * ODE syntax requirements:
- * 1. All variables are space delimited (x' = 5 x)
- * 2. Left part contains only time derivative of one variable (x' = ...)
  */
 template<class Value, class Time>
 class OdeSolver {

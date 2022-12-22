@@ -1,0 +1,2 @@
+add_executable(perturbations perturbations.cpp)
+target_link_libraries(perturbations PRIVATE cosmology_lib)

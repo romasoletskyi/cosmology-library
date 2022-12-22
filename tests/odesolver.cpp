@@ -1,7 +1,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include "../include/odesolver.h"
-#include "../include/utility.h"
+#include <cosmology/odesolver.h>
+#include <utility.h>
 
 std::pair<parser::Lexeme, std::string> pair(parser::Lexeme lexeme, std::string string) {
     return std::make_pair(lexeme, std::move(string));

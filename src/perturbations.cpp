@@ -1,13 +1,4 @@
-#pragma once
-
-#include "parameters.h"
-#include "odesolver.h"
-#include "utility.h"
-
-struct HomogenousHistory {
-    std::vector<float> eta; // conformal time
-    std::vector<float> a; // scale factor
-};
+#include <cosmology/perturbations.h>
 
 HomogenousHistory getHomogenousHistory(float aStart, float etaEnd, int points) {
     OdeSolver<float, float> solver;
@@ -33,10 +24,4 @@ HomogenousHistory getHomogenousHistory(float aStart, float etaEnd, int points) {
     history.eta = std::move(grid);
 
     return history;
-}
-
-std::vector<float> getTransferFunctions(float kMode) {
-    OdeSolver<float, float> solver;
-
-
 }

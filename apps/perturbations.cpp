@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../include/perturbations.h"
+#include <cosmology/perturbations.h>
 
 int main() {
     auto history = getHomogenousHistory(1e-3, 4.7, 1e4);
