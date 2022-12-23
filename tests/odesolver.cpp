@@ -1,7 +1,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include <cosmology/odesolver.h>
-#include <utility.h>
+#include <cosmology/odesolver/odesolver.h>
+#include <cosmology/utility/math.h>
 
 std::pair<parser::Lexeme, std::string> pair(parser::Lexeme lexeme, std::string string) {
     return std::make_pair(lexeme, std::move(string));
@@ -14,7 +14,7 @@ TEST(ParserTest, Basic) {
     Trie trie;
     trie.addString("x");
 
-    EquationParser parser(trie, ss);
+    EquationLexer parser(trie, ss);
     ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Right, "x"));
@@ -29,7 +29,7 @@ TEST(ParserTest, Numbers) {
     Trie trie;
     trie.addString("x");
 
-    EquationParser parser(trie, ss);
+    EquationLexer parser(trie, ss);
     ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Number, "5"));
@@ -46,7 +46,7 @@ TEST(ParserTest, Complex) {
         trie.addString(string);
     }
 
-    EquationParser parser(trie, ss);
+    EquationLexer parser(trie, ss);
     ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Minus, ""));
@@ -252,6 +252,6 @@ TEST(OdeSolver, RungeKutta) {
 
 int main() {
     ::testing::InitGoogleTest();
-    // ::testing::GTEST_FLAG(filter) = "SystemBuilder*Complex";
+    ::testing::GTEST_FLAG(filter) = "SystemBuilder*Substitution";
     return RUN_ALL_TESTS();
 }

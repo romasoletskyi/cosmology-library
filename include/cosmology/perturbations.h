@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cosmology/odesolver/odesolver.h>
+#include <cosmology/utility/math.h>
 #include "parameters.h"
-#include "odesolver.h"
-#include "utility.h"
 
 struct HomogenousHistory {
     std::vector<float> eta; // conformal time
