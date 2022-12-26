@@ -7,37 +7,40 @@ std::pair<parser::Lexeme, std::string> pair(parser::Lexeme lexeme, std::string s
     return std::make_pair(lexeme, std::move(string));
 }
 
-TEST(ParserTest, Basic) {
+TEST(Lexer, Basic) {
     using namespace parser;
     std::stringstream ss("x' = x");
 
     Trie trie;
     trie.addString("x");
 
-    EquationLexer parser(trie, ss);
-    ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
+    ExpressionLexer parser(trie, ss);
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
-    ASSERT_EQ(parser.next(), pair(Lexeme::Right, "x"));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Equal, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
 }
 
-TEST(ParserTest, Numbers) {
+TEST(Lexer, Numbers) {
     using namespace parser;
     std::stringstream ss("x' = 5 x");
 
     Trie trie;
     trie.addString("x");
 
-    EquationLexer parser(trie, ss);
-    ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
+    ExpressionLexer parser(trie, ss);
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Equal, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Number, "5"));
-    ASSERT_EQ(parser.next(), pair(Lexeme::Right, "x"));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Multiplication, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
 }
 
-TEST(ParserTest, Complex) {
+TEST(Lexer, Complex) {
     using namespace parser;
     std::stringstream ss("x' = - 7 a y + 3 z");
 
@@ -46,17 +49,129 @@ TEST(ParserTest, Complex) {
         trie.addString(string);
     }
 
-    EquationLexer parser(trie, ss);
-    ASSERT_EQ(parser.next(), pair(Lexeme::Left, "x"));
+    ExpressionLexer parser(trie, ss);
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "x"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Derivative, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Equal, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Minus, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Number, "7"));
-    ASSERT_EQ(parser.next(), pair(Lexeme::Right, "a"));
-    ASSERT_EQ(parser.next(), pair(Lexeme::Right, "y"));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Multiplication, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "a"));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Multiplication, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "y"));
     ASSERT_EQ(parser.next(), pair(Lexeme::Plus, ""));
     ASSERT_EQ(parser.next(), pair(Lexeme::Number, "3"));
-    ASSERT_EQ(parser.next(), pair(Lexeme::Right, "z"));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Multiplication, ""));
+    ASSERT_EQ(parser.next(), pair(Lexeme::Variable, "z"));
     ASSERT_EQ(parser.next(), pair(Lexeme::End, ""));
+}
+
+TEST(Lexer, Brackets) {
+    using namespace parser;
+    std::stringstream ss("x' = a (y + z) a b + b a (z + a)");
+
+    Trie trie;
+    for (const auto &string: {"x", "y", "z", "a", "b"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer parser(trie, ss);
+    std::vector<Token> tokens = {{Lexeme::Variable,       "x"},
+                                 {Lexeme::Derivative,     ""},
+                                 {Lexeme::Equal,          ""},
+                                 {Lexeme::Variable,       "a"},
+                                 {Lexeme::Multiplication, ""},
+                                 {Lexeme::LeftBracket,    ""},
+                                 {Lexeme::Variable,       "y"},
+                                 {Lexeme::Plus,           ""},
+                                 {Lexeme::Variable,       "z"},
+                                 {Lexeme::RightBracket,   ""},
+                                 {Lexeme::Multiplication, ""},
+                                 {Lexeme::Variable,       "a"},
+                                 {Lexeme::Multiplication, ""},
+                                 {Lexeme::Variable,       "b"},
+                                 {Lexeme::Plus,           ""},
+                                 {Lexeme::Variable,       "b"},
+                                 {Lexeme::Multiplication, ""},
+                                 {Lexeme::Variable,       "a"},
+                                 {Lexeme::Multiplication, ""},
+                                 {Lexeme::LeftBracket,    ""},
+                                 {Lexeme::Variable,       "z"},
+                                 {Lexeme::Plus,           ""},
+                                 {Lexeme::Variable,       "a"},
+                                 {Lexeme::RightBracket,   ""}};
+
+    for (const auto &token: tokens) {
+        ASSERT_EQ(parser.next(), token);
+    }
+}
+
+TEST(SyntaxTree, Basic) {
+    using namespace parser;
+    std::stringstream ss("7 a y + 3 z");
+
+    Trie trie;
+    for (const auto &string: {"x", "y", "z", "a"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer lexer(trie, ss);
+
+    SyntaxTree tree;
+    tree.build(lexer);
+    auto root = tree.getRoot();
+
+    ASSERT_EQ(root->token.first, Lexeme::Plus);
+    ASSERT_EQ(root->left->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->left->left->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->left->right->token, pair(Lexeme::Variable, "y"));
+    ASSERT_EQ(root->left->left->left->token, pair(Lexeme::Number, "7"));
+    ASSERT_EQ(root->left->left->right->token, pair(Lexeme::Variable, "a"));
+    ASSERT_EQ(root->right->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->right->left->token, pair(Lexeme::Number, "3"));
+    ASSERT_EQ(root->right->right->token, pair(Lexeme::Variable, "z"));
+}
+
+TEST(SyntaxTree, Brackets) {
+    using namespace parser;
+    std::stringstream ss("((5 + a) / -8) * (4 + b)");
+
+    Trie trie;
+    for (const auto &string: {"a", "b"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer lexer(trie, ss);
+
+    SyntaxTree tree;
+    tree.build(lexer);
+    auto root = tree.getRoot();
+
+    ASSERT_EQ(root->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->level, 0);
+
+    ASSERT_EQ(root->left->token.first, Lexeme::Division);
+    ASSERT_EQ(root->left->level, 1);
+
+    ASSERT_EQ(root->left->left->token.first, Lexeme::Plus);
+    ASSERT_EQ(root->left->left->level, 2);
+    ASSERT_EQ(root->left->left->left->token, pair(Lexeme::Number, "5"));
+    ASSERT_EQ(root->left->left->left->level, 2);
+    ASSERT_EQ(root->left->left->right->token, pair(Lexeme::Variable, "a"));
+    ASSERT_EQ(root->left->left->right->level, 2);
+
+    ASSERT_EQ(root->left->right->token.first, Lexeme::Minus);
+    ASSERT_EQ(root->left->right->level, 1);
+    ASSERT_EQ(root->left->right->left, nullptr);
+    ASSERT_EQ(root->left->right->right->token, pair(Lexeme::Number, "8"));
+    ASSERT_EQ(root->left->right->right->level, 1);
+
+    ASSERT_EQ(root->right->token.first, Lexeme::Plus);
+    ASSERT_EQ(root->right->level, 1);
+    ASSERT_EQ(root->right->left->token, pair(Lexeme::Number, "4"));
+    ASSERT_EQ(root->right->left->level, 1);
+    ASSERT_EQ(root->right->right->token, pair(Lexeme::Variable, "b"));
+    ASSERT_EQ(root->right->right->level, 1);
 }
 
 TEST(SystemBuilder, TwoEquations) {
@@ -252,6 +367,6 @@ TEST(OdeSolver, RungeKutta) {
 
 int main() {
     ::testing::InitGoogleTest();
-    ::testing::GTEST_FLAG(filter) = "SystemBuilder*Substitution";
+    ::testing::GTEST_FLAG(filter) = "SyntaxTree*";
     return RUN_ALL_TESTS();
 }
