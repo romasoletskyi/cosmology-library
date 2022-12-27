@@ -2,17 +2,36 @@
 
 #include <cosmology/odesolver/odesystem.h>
 
+template<class Value>
+struct Solution;
+
 namespace walker {
     template<class Value, class Time>
-    class Walker {
+    class IWalker {
+    protected:
+        using Matrix = typename formula::System<Value, Time>::Matrix;
+
     public:
-        Walker(matrix::System<Value, Time> system, const std::vector<Time> &grid) : system_(system),
-                                                                                    grid_(grid) {
+        explicit IWalker(formula::GeneralSystem<Value, Time> system) : system_(std::move(system)) {
+        }
+
+        virtual ~IWalker() = 0;
+
+        virtual Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) = 0;
+
+        // solution at step' <= step is known, calculates solution at step + 1
+        void next(Solution<Value> &solution, const std::vector<Time> &grid, int step) {
+            Time time = grid[step + 1];
+
+            auto nextDynamicState = nextDynamic(solution, grid, step);
+            auto nextNonDynamicState = system_.nondynamic.getMatrix(time, solution.getState(step)) * nextDynamicState +
+                                       system_.nondynamic.getSource(time, solution.getState(step));
+
+            system_.port.storeTotalState(nextDynamicState, nextNonDynamicState, solution.getState(step + 1));
         }
 
     protected:
-        matrix::System<Value, Time> system_;
-        const std::vector<Time> &grid_;
+        formula::GeneralSystem<Value, Time> system_;
     };
 
     /*
@@ -20,54 +39,54 @@ namespace walker {
      * (x^{n+1} - x^n) / dt = A^{n+1}x^{n+1} + b^{n+1} <=> (1 - dt A^{n+1}) x^{n+1} = x^n + dt b^{n+1}
      */
     template<class Value, class Time>
-    class BackwardEulerWalker : public Walker<Value, Time> {
+    class BackwardEulerWalker : public IWalker<Value, Time> {
+    private:
+        using Matrix = typename IWalker<Value, Time>::Matrix;
+
     public:
-        using Walker<Value, Time>::Walker;
+        using IWalker<Value, Time>::Walker;
 
-        void next(typename OdeSolver<Value, Time>::Solution &solution, size_t step) {
-            using Mat = typename matrix::System<Value, Time>::Mat;
+        Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) {
+            Time time = grid[step + 1];
+            Time dt = time - grid[step];
+            int dynamicVariablesNumber = this->system_.port.getDynamicVariablesNumber();
 
-            Time time = this->grid_[step + 1];
-            Time dt = time - this->grid_[step];
-            Mat mat = Mat::Identity(solution.variableNumber, solution.variableNumber) -
-                      dt * this->system_.getMatrix(time, solution.getState(step));
-            Mat source = Eigen::Map<const Mat>(solution.getState(step), solution.variableNumber, 1) +
-                         dt * this->system_.getSource(time, solution.getState(step));
-            Mat nextMatState = mat.colPivHouseholderQr().solve(source);
+            Matrix matrix = Matrix::Identity(dynamicVariablesNumber, dynamicVariablesNumber) -
+                            dt * this->system_.dynamic.getMatrix(time, solution.getState(step));
+            Matrix source = this->system_.port.loadDynamicState(solution.getState(step)) +
+                            dt * this->system_.dynamic.getSource(time, solution.getState(step));
 
-            for (size_t j = 0; j < solution.variableNumber; ++j) {
-                solution(step + 1, j) = nextMatState(j, 0);
-            }
+            return matrix.colPivHouseholderQr().solve(source);
         }
     };
 
     // Standard 4-step Runge-Kutta method
     template<class Value, class Time>
-    class RungeKuttaWalker : public Walker<Value, Time> {
+    class RungeKuttaWalker : public IWalker<Value, Time> {
+    private:
+        using Matrix = typename IWalker<Value, Time>::Matrix;
+
     public:
-        using Walker<Value, Time>::Walker;
+        using IWalker<Value, Time>::Walker;
 
-        void next(typename OdeSolver<Value, Time>::Solution &solution, size_t step) {
-            Time time = this->grid_[step];
-            Time dt = this->grid_[step + 1] - time;
+        Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) {
+            Time time = grid[step];
+            Time dt = grid[step + 1] - time;
 
-            Mat matState = Eigen::Map<const Mat>(solution.getState(step), solution.variableNumber, 1);
-            Mat k1 = getDerivative(matState, time);
-            Mat k2 = getDerivative(matState + k1 * dt / 2, time + dt / 2);
-            Mat k3 = getDerivative(matState + k2 * dt / 2, time + dt / 2);
-            Mat k4 = getDerivative(matState + k3 * dt, time + dt);
+            Matrix dynamicState = this->system_.port.loadDynamicState(solution.getState(step));
 
-            Mat nextMatState = matState + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-            for (size_t j = 0; j < solution.variableNumber; ++j) {
-                solution(step + 1, j) = nextMatState(j, 0);
-            }
+            Matrix k1 = getDerivative(dynamicState, solution.getState(step), time);
+            Matrix k2 = getDerivative(dynamicState + k1 * dt / 2, solution.getState(step), time + dt / 2);
+            Matrix k3 = getDerivative(dynamicState + k2 * dt / 2, solution.getState(step), time + dt / 2);
+            Matrix k4 = getDerivative(dynamicState + k3 * dt, solution.getState(step), time + dt);
+
+            return dynamicState + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
         }
 
     private:
-        using Mat = typename matrix::System<Value, Time>::Mat;
-
-        auto getDerivative(const Mat &state, Time time) {
-            return this->system_.getMatrix(time, state.data()) * state + this->system_.getSource(time, state.data());
+        auto getDerivative(const Matrix &dynamicState, const Value *totalState, Time time) {
+            return this->system_.dynamic.getMatrix(time, totalState) * dynamicState +
+                   this->system_.dynamic.getSource(time, totalState);
         }
     };
 } // namespace walker
