@@ -15,7 +15,7 @@ namespace walker {
         explicit IWalker(formula::GeneralSystem<Value, Time> system) : system_(std::move(system)) {
         }
 
-        virtual ~IWalker() = 0;
+        virtual ~IWalker() = default;
 
         virtual Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) = 0;
 
@@ -44,7 +44,9 @@ namespace walker {
         using Matrix = typename IWalker<Value, Time>::Matrix;
 
     public:
-        using IWalker<Value, Time>::Walker;
+        using IWalker<Value, Time>::IWalker;
+
+        ~BackwardEulerWalker() = default;
 
         Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) {
             Time time = grid[step + 1];
@@ -67,7 +69,9 @@ namespace walker {
         using Matrix = typename IWalker<Value, Time>::Matrix;
 
     public:
-        using IWalker<Value, Time>::Walker;
+        using IWalker<Value, Time>::IWalker;
+
+        ~RungeKuttaWalker() = default;
 
         Matrix nextDynamic(Solution<Value> &solution, const std::vector<Time> &grid, int step) {
             Time time = grid[step];

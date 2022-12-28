@@ -14,7 +14,8 @@ HomogenousHistory getHomogenousHistory(float aStart, float etaEnd, int points) {
     solver.addEquation("a' = da");
     auto grid = linSpace<float>(0, etaEnd, points);
     solver.setGrid(grid);
-    auto solution = solver.solve<walker::RungeKuttaWalker<float, float>>({aStart});
+    solver.compile<walker::RungeKuttaWalker<float, float>>();
+    auto solution = solver.solve({aStart});
 
     HomogenousHistory history;
     history.a.reserve(grid.size());

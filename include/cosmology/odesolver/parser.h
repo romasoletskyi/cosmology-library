@@ -212,6 +212,8 @@ namespace parser {
         };
 
     public:
+        using Node = Node;
+
         ~SyntaxTree() {
             delete root_;
         }
@@ -228,6 +230,18 @@ namespace parser {
 
         void build(ExpressionLexer &lexer) {
             buildUntilAt(lexer, Lexeme::End, 0);
+        }
+
+        friend std::vector<Node*> getVertexNeighbors(const SyntaxTree& /*tree*/, Node* node) {
+            std::vector<Node*> neighbors;
+
+            for (auto neighbor: {node->right, node->left}) {
+                if (neighbor) {
+                    neighbors.push_back(neighbor);
+                }
+            }
+
+            return neighbors;
         }
 
     private:

@@ -1,7 +1,7 @@
 set(LIB_DIR "${cosmology_SOURCE_DIR}/include/cosmology")
 set(HEADER_LIST "${LIB_DIR}/odesolver/odesolver.h"
                 "${LIB_DIR}/odesolver/odesystem.h"
-                "${LIB_DIR}/odesolver/odeparser.h"
+                "${LIB_DIR}/odesolver/parser.h"
                 "${LIB_DIR}/odesolver/odewalker.h"
                 "${LIB_DIR}/utility/math.h"
                 "${LIB_DIR}/utility/graph.h"
