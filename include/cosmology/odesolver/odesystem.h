@@ -294,6 +294,9 @@ namespace formula {
             void discoverVertex(parser::SyntaxTree::Node * /*vertex*/) {
             }
 
+            void discoverBackEdge(parser::SyntaxTree::Node */*vertex*/, parser::SyntaxTree::Node */*neighbor*/) {
+            }
+
             void leaveVertex(parser::SyntaxTree::Node *node) {
                 using namespace parser;
 

@@ -20,7 +20,11 @@ namespace graph {
                 color[vertex] = VertexColor::Gray;
                 visitor.discoverVertex(vertex);
                 for (Vertex neighbor: getVertexNeighbors(graph, vertex)) {
-                    vertices.push_back(neighbor);
+                    if (!color.count(neighbor)) {
+                        vertices.push_back(neighbor);
+                    } else if (color[neighbor] == VertexColor::Gray) {
+                        visitor.discoverBackEdge(vertex, neighbor);
+                    }
                 }
             } else {
                 vertices.pop_back();
@@ -77,11 +81,11 @@ namespace graph {
     class TopologicalVisitor {
     public:
         void discoverVertex(int vertex) {
-            if (visited_.count(vertex)) {
-                throw std::logic_error("graph contains cycles - topological order is impossible to define");
-            }
-
             visited_.insert(vertex);
+        }
+
+        void discoverBackEdge(int vertex, int neighbor) {
+            throw std::logic_error("graph contains a cycle - topological order is non-defined");
         }
 
         void leaveVertex(int vertex) {
