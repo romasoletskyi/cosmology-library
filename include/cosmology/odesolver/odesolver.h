@@ -14,6 +14,28 @@ struct Solution {
                                                      gridLength(gridLength_), variableNumber(variableNumber_) {
     }
 
+    Solution() : data(nullptr), gridLength(0), variableNumber(0) {
+    }
+
+    ~Solution() {
+        delete[] data;
+    }
+
+    Solution(const Solution &solution) = delete;
+
+    Solution &operator=(const Solution &solution) = delete;
+
+    Solution(Solution &&solution) : data(std::exchange(solution.data, nullptr)), gridLength(solution.gridLength),
+                                    variableNumber(solution.variableNumber) {
+    }
+
+    Solution &operator=(Solution &&solution) noexcept {
+        std::swap(data, solution.data);
+        gridLength = solution.gridLength;
+        variableNumber = solution.variableNumber;
+        return *this;
+    }
+
     const Value *getState(int i) const {
         return data + i * variableNumber;
     }
@@ -30,22 +52,20 @@ struct Solution {
         return data[i * variableNumber + j];
     }
 
-    ~Solution() {
-        delete[] data;
-    }
-
     Value *data;
     int gridLength, variableNumber;
 };
 
 /*
- * ODE syntax requirements:
- * 1. All variables are space delimited (x' = 5 x)
- * 2. Left part contains only time derivative of one variable (x' = ...) or definition of variable itself (y = 2 * x)
- * 3. addCoefficient adds function which depends on time
- * 4. addExplicitFunction adds function on time and state at time t_n,
- *    which is going to be used to compute state at t_{n+1}
- * 5. Coefficients and explicit functions MUST be written before the variable (x' = k x)
+ * ODE syntax:
+ * 1. Different variables/numbers have to be divided by math operators (-, +, *, /) or by space.
+ *    Space between two variables is interpreted as multiplication
+ *    Example: x' = 2 x + 7
+ * 2. Left part contains time derivative of one variable (x' = ...) or definition of variable itself (y = 2 * x)
+ * 3. addCoefficient adds function which depends on time only
+ * 4. addExplicitFunction adds function on time and state at time t_n, which is going to be used to compute state
+ *    at t_{n+1}. Full support is provided to functions which depend only on dynamical variables
+ *    (meaning variables which have x' = ... like equation). Otherwise, order of a numerical scheme may be lower.
  *
  * Solver usage example for the equation x'(t) = x(t); 0<=t<=1
  *
@@ -53,7 +73,8 @@ struct Solution {
  * solver.addVariable("x");
  * solver.addEquation("x' = x");
  * solver.setGrid(linSpace<float>(0, 1, 10));
- * solver.solve<walker::RungeKuttaWalker<float, float>>({1});
+ * solver.compile<walker::RungeKuttaWalker<double, double>>();
+ * auto solution = solver.solve({1});
  */
 template<class Value, class Time>
 class OdeSolver {

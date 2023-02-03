@@ -309,11 +309,12 @@ TEST(SystemBuilder, Complex) {
     }
 }
 
-float compareSolutions(const std::vector<float> &grid, const Solution<float> &solution,
-                       const std::function<std::vector<float>(float)> &precise) {
-    float maxDiff = 0;
+template<class T>
+T compareSolutions(const std::vector<T> &grid, const Solution<T> &solution,
+                   const std::function<std::vector<T>(T)> &precise) {
+    T maxDiff = 0;
     for (int i = 0; i < solution.gridLength; ++i) {
-        float diff = 0;
+        T diff = 0;
         auto preciseSolution = precise(grid[i]);
 
         for (int j = 0; j < solution.variableNumber; ++j) {
@@ -339,7 +340,7 @@ TEST(OdeSolver, Basic) {
     solver.compile<walker::BackwardEulerWalker<float, float>>();
 
     auto solution = solver.solve({1});
-    float maxDiff = compareSolutions(grid, solution, [dt](float time) {
+    auto maxDiff = compareSolutions<float>(grid, solution, [dt](float time) {
         return std::vector<float>{std::pow(1 / (1 - dt), (time - 1) / dt)};
     });
 
@@ -368,15 +369,44 @@ TEST(OdeSolver, RungeKutta) {
     solver.compile<walker::RungeKuttaWalker<float, float>>();
 
     auto solution = solver.solve({1, 1});
-    float maxDiff = compareSolutions(grid, solution, [](float time) {
+    auto maxDiff = compareSolutions<float>(grid, solution, [](float time) {
         return std::vector({1 + time, 1 + time + time * time});
     });
 
     ASSERT_LT(maxDiff, 1e-6);
 }
 
+TEST(OdeSolver, RungeKuttaOrder) {
+    OdeSolver<double, double> solver;
+
+    solver.addVariable("x");
+    solver.addExplicitFunction("dx", [](double time, std::vector<double> data) { return data[0]; }, {"x"});
+    solver.addEquation("x' = dx");
+    solver.compile<walker::RungeKuttaWalker<double, double>>();
+
+    auto smallGrid = linSpace<double>(0, 1, 4);
+    auto largeGrid = linSpace<double>(0, 1, 8);
+
+    solver.setGrid(smallGrid);
+    auto smallSolution = solver.solve({1});
+    auto smallGridDiff = compareSolutions<double>(smallGrid, smallSolution,
+                                                  [](double time) { return std::vector<double>{std::exp(time)}; });
+
+    auto smallGridExactDiff = compareSolutions<double>(smallGrid, smallSolution, [](double time) {
+        return std::vector<double>{std::pow(7889.0 / 6144, 4 * time)};
+    });
+    ASSERT_LE(smallGridExactDiff, 1e-9);
+
+    solver.setGrid(largeGrid);
+    auto largeSolution = solver.solve({1});
+    auto largeGridDiff = compareSolutions<double>(largeGrid, largeSolution,
+                                                  [](double time) { return std::vector<double>{std::exp(time)}; });
+
+    ASSERT_GT(smallGridDiff / largeGridDiff, 4);
+}
+
 int main() {
     ::testing::InitGoogleTest();
-    // ::testing::GTEST_FLAG(filter) = "SystemBuilder*";
+    ::testing::GTEST_FLAG(filter) = "OdeSolver*RungeKuttaOrder";
     return RUN_ALL_TESTS();
 }

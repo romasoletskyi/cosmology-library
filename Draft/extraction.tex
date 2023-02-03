@@ -27,8 +27,10 @@
 \DeclareMathOperator{\Ima}{Im}
 \DeclareMathOperator{\Rea}{Re}
 
-\title{Extraction of cosmological parameters}
-\date{}
+\title{Extraction of cosmological parameters from observational data}
+\author{Roman Soletskyi\\
+		Supervised by: Erwan Allys, François Levrier}
+
 
 \begin{document}
 	\selectlanguage{english}
@@ -196,6 +198,7 @@
 	
 	Going to Fourier space, from time to conformal time and assuming $u^i_b\sim k^i$ results in 
 	\begin{equation}
+		\label{eq:baryons}
 		u_b' + \frac{a'}{a}u_b + ik\Psi = \tau'\frac{4\rho_\gamma}{\rho_b}\left(i\Theta_1 + \frac{u_b}{3}\right)		
 	\end{equation}
 
@@ -286,6 +289,60 @@
 		C_l = \frac{2}{\pi}\int dk k^2 P_\mathcal{R}(k) |\mathcal{T}_l(k)|^2
 	\end{equation}
 	Thus, we have to compute $\mathcal{T}_l(k)$ or, in other words, how $\Theta_l(k, \eta)$ evolves from given initial conditions.
+	
+	\subsection{Recombination}
+	We are interested in an average density of free electrons $n_e$ in order to calculate optical density, which is present in equations~\ref{eq:theta} and~\ref{eq:baryons}. Initially, when Universe is hot, electrons are decoupled from atoms' nucleus. Later on, more and more electrons couple to nucleus and create neutral atoms, lowering $n_e$ to zero. In order to simplify discussion of this complex process called recombination, we are going to follow~\cite{dodelson:2003} and assume that helium is absent, therefore, baryon matter consists of protons and electrons only. Then we have an (effective) reaction $e + p\leftrightarrow H + \gamma$ that we are going to denote as $1 + 2\leftrightarrow 3 + 4$ for now.
+	
+	Consider a homogeneous variant of~\ref{eq:continuity:cold} with non-trivial right part
+	\begin{multline}
+		\label{eq:reaction:complete}
+		\frac{1}{a^3}\frac{d(n_1a^3)}{dt} = \int\frac{d^3p_1}{(2\pi)^3 2E_1}\int\frac{d^3p_2}{(2\pi)^3 2E_2}\int\frac{d^3p_3}{(2\pi)^3 2E_3}\int\frac{d^3p_4}{(2\pi)^3 2E_4}\\
+		(2\pi)^4\delta(\mathbf{p}_1 + \mathbf{p}_2 - \mathbf{p}_3 - \mathbf{p}_4)\delta(E_1 + E_2 - E_3 - E_4)|\mathcal{M}|^2\\
+		\left[f_3f_4(1\pm f_1)(1\pm f_2) - f_1f_2(1\pm f_3)(1\pm f_4)\right]
+	\end{multline}
+
+	Here $f_i$ denotes homogeneous in space distribution $f_i(\mathbf{p}_i, t)$ for $i$-th particle and $\mathcal{M}$ is scattering amplitude. Recombination happens when energies of all particles (including photon having hydrogen ionization energy) are much larger than temperature. Then Boson-Einstein and Dirac distributions reduce to Maxwell-Boltzmann as $f_i\approx e^{\mu_i / T}e^{-E_i / T}$. We can rewrite
+	\begin{equation}
+		\left[f_3f_4(1\pm f_1)(1\pm f_2) - f_1f_2(1\pm f_3)(1\pm f_4)\right] \approx e^{-(E_1 + E_2) / T}\left[e^{(\mu_3 + \mu_4) / T} - e^{(\mu_1 + \mu_2) / T}\right]
+	\end{equation}
+
+	Particle concentration is defined as
+	\begin{equation}
+		n_i = g_i\int\frac{d^3p}{(2\pi)^3} f_i(\mathbf{p}, t)\approx g_ie^{\mu_i/T}\int\frac{d^3p}{(2\pi)^3} e^{-E_i / T}
+	\end{equation}
+	We define particle concentration at $\mu_i = 0$ as $n^{(0)}_i = n_i|_{\mu_i = 0}$. Equation~\ref{eq:reaction:complete} simplifies to
+	\begin{equation}
+		\frac{1}{a^3}\frac{d(n_1a^3)}{dt} = n_1^{(0)}n_2^{(0)}\langle\sigma v\rangle\left[\frac{n_3 n_4}{n^{(0)}_3 n^{(0)}_4} - \frac{n_1 n_2}{n^{(0)}_1 n^{(0)}_2}\right]
+	\end{equation}
+	where average cross section $\langle\sigma v\rangle$ is defined as
+	\begin{multline}
+		\langle\sigma v\rangle = \frac{1}{n_1^{(0)}n_2^{(0)}}\int\frac{d^3p_1}{(2\pi)^3 2E_1}\int\frac{d^3p_2}{(2\pi)^3 2E_2}\int\frac{d^3p_3}{(2\pi)^3 2E_3}\int\frac{d^3p_4}{(2\pi)^3 2E_4} e^{-(E_1 + E_2) / T}\\
+		(2\pi)^4\delta(\mathbf{p}_1 + \mathbf{p}_2 - \mathbf{p}_3 - \mathbf{p}_4)\delta(E_1 + E_2 - E_3 - E_4)|\mathcal{M}|^2
+	\end{multline}
+
+	For recombination reaction $e + p\leftrightarrow H + \gamma$ we obtain equation
+	\begin{equation}
+		\frac{1}{a^3}\frac{d(n_ea^3)}{dt} = n_e^{(0)}n_p^{(0)}\langle\sigma v\rangle\left[\frac{n_\gamma n_H}{n^{(0)}_\gamma n^{(0)}_H} - \frac{n_e n_p}{n^{(0)}_e n^{(0)}_p}\right]
+	\end{equation}
+	From electrical neutrality of the universe $n_e = n_p$. Define free electron fraction as $X_e = n_e / (n_e + n_H) = n_p / (n_p + n_H)$. Since total mass in a comoving volume $m_p(n_p + n_H)a^3 = m_p n_b a^3$ is saved, we can rewrite left part as
+	\begin{equation}
+		\frac{1}{a^3}\frac{d(X_e(n_p + n_H)a^3)}{dt} = \frac{a^3(n_p + n_H)}{a^3}\frac{dX_e}{dt} = n_b\frac{dX_e}{dt}
+	\end{equation}
+
+	For non-relativistic particles, we can compute
+	\begin{equation}
+		n^{(0)} \approx ge^{-m/T}\int\frac{d^3p}{(2\pi)^3}e^{-p^2/2mT} = g\left(\frac{mT}{2\pi}\right)^{3/2}e^{-m/T}
+	\end{equation}
+	Real concentrations $n^{(0)}$ are written through baryon density $n_b$ and free electron fraction as $n_e = n_p = n_b X_e$ and $n_H = n_b (1 - X_e)$. Photon has zero chemical potential and, therefore, $n_\gamma/n_\gamma^{(0)} = 1$. Combining and simplifying we obtain
+	\begin{equation}
+		\frac{dX_e}{dt} = \langle\sigma v\rangle\left[\left(\frac{m_eT}{2\pi}\right)^{3/2}e^{-\Delta/T}(1 - X_e) - n_b X_e^2\right]
+	\end{equation}
+	where $\Delta = m_e + m_p - m_H$ is an ionization energy. In order to compute cross-section, one has to consider complicated set of reactions between different excited states of hydrogen atom and their decay rates computed from QED, sketch of the computation can be found in~\cite{peebles:1993}. Instead, we are going to use an approximation from~\cite{ma:1995} which works well for recombination temperatures:
+	\begin{equation}
+		\langle\sigma v\rangle\approx 9.78\frac{\alpha^2}{m_e^2}\left(\frac{\Delta}{T}\right)^{1/2}\ln\frac{\Delta}{T}
+	\end{equation}
+
+	Finally, differential optical depth $-\tau'$ can be computed $-\tau' = n_e\sigma_Ta = n_bX_e\sigma_Ta$. Probability density of a photon being last time scattered at $\eta$ is $g(\eta) = (e^{-\tau})' = (-\tau')e^{-\tau}$. 
 	
 	\subsection{Solving evolution equations}
 	Equation~\ref{eq:theta} can be written as

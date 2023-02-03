@@ -16,7 +16,8 @@ def main():
     xe = np.array(xe_list)
     z = 1 / a - 1
 
-    plt.plot(-np.log(z), np.log(xe))
+    plt.plot(np.log10(z), np.log10(xe))
+    plt.gca().invert_xaxis()
     plt.show()
 
 if __name__ == "__main__":

@@ -13,6 +13,10 @@ double Spline::evaluate(double t) const {
     return polys_[index].evaluate(t - knots_[index]);
 }
 
+const std::vector<double> &Spline::getKnots() const {
+    return knots_;
+}
+
 // algorithm taken from https://en.wikipedia.org/wiki/Spline_(mathematics)
 Spline SplineBuilder::buildFromPoints(std::vector<std::pair<double, double>> points) {
     std::sort(points.begin(), points.end(), [](const auto &lhs, const auto &rhs) {

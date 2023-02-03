@@ -12,6 +12,8 @@ class Spline {
 public:
     double evaluate(double t) const;
 
+    const std::vector<double>& getKnots() const;
+
 private:
     friend class SplineBuilder;
 

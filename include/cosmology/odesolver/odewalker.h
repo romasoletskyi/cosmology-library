@@ -78,19 +78,23 @@ namespace walker {
             Time dt = grid[step + 1] - time;
 
             Matrix dynamicState = this->system_.port.loadDynamicState(solution.getState(step));
+            Value buffer[solution.variableNumber];
 
-            Matrix k1 = getDerivative(dynamicState, solution.getState(step), time);
-            Matrix k2 = getDerivative(dynamicState + k1 * dt / 2, solution.getState(step), time + dt / 2);
-            Matrix k3 = getDerivative(dynamicState + k2 * dt / 2, solution.getState(step), time + dt / 2);
-            Matrix k4 = getDerivative(dynamicState + k3 * dt, solution.getState(step), time + dt);
+            Matrix k1 = getDerivative(dynamicState, solution.getState(step), buffer, time);
+            Matrix k2 = getDerivative(dynamicState + k1 * dt / 2, solution.getState(step), buffer, time + dt / 2);
+            Matrix k3 = getDerivative(dynamicState + k2 * dt / 2, solution.getState(step), buffer, time + dt / 2);
+            Matrix k4 = getDerivative(dynamicState + k3 * dt, solution.getState(step), buffer, time + dt);
 
             return dynamicState + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
         }
 
     private:
-        auto getDerivative(const Matrix &dynamicState, const Value *totalState, Time time) {
-            return this->system_.dynamic.getMatrix(time, totalState) * dynamicState +
-                   this->system_.dynamic.getSource(time, totalState);
+        auto getDerivative(const Matrix &dynamicState, const Value *initialState, Value *buffer, Time time) {
+            auto nonDynamicState = this->system_.nondynamic.getMatrix(time, initialState) * dynamicState +
+                                   this->system_.nondynamic.getSource(time, initialState);
+            this->system_.port.storeTotalState(dynamicState, nonDynamicState, buffer);
+            return this->system_.dynamic.getMatrix(time, buffer) * dynamicState +
+                   this->system_.dynamic.getSource(time, buffer);
         }
     };
 } // namespace walker
