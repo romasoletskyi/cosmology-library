@@ -2,6 +2,14 @@
 
 #include <cosmology/utility/spline.h>
 
+std::ostream &operator<<(std::ostream &stream, const CubicPolynomial &poly) {
+    return stream << poly.a << " " << poly.b << " " << poly.c << " " << poly.d;
+}
+
+std::istream &operator>>(std::istream &stream, CubicPolynomial &poly) {
+    return stream >> poly.a >> poly.b >> poly.c >> poly.d;
+}
+
 double Spline::evaluate(double t) const {
     size_t index = std::distance(knots_.begin(), std::lower_bound(knots_.begin(), knots_.end(), t));
     if (index > 0) {
@@ -15,6 +23,10 @@ double Spline::evaluate(double t) const {
 
 const std::vector<double> &Spline::getKnots() const {
     return knots_;
+}
+
+const std::vector<CubicPolynomial> &Spline::getPolynomials() const {
+    return polys_;
 }
 
 // algorithm taken from https://en.wikipedia.org/wiki/Spline_(mathematics)

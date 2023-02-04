@@ -1,4 +1,8 @@
+#pragma once
+
 #include <vector>
+#include <ostream>
+#include <istream>
 
 struct CubicPolynomial {
     double a, b, c, d;
@@ -8,11 +12,22 @@ struct CubicPolynomial {
     }
 };
 
+std::ostream &operator<<(std::ostream &stream, const CubicPolynomial &poly);
+
+std::istream &operator>>(std::istream &stream, CubicPolynomial &poly);
+
 class Spline {
 public:
+    Spline() {}
+
+    Spline(const std::vector<double> &knots, const std::vector<CubicPolynomial> &polys) : knots_(knots),
+                                                                                          polys_(polys) {}
+
     double evaluate(double t) const;
 
-    const std::vector<double>& getKnots() const;
+    const std::vector<double> &getKnots() const;
+
+    const std::vector<CubicPolynomial> &getPolynomials() const;
 
 private:
     friend class SplineBuilder;

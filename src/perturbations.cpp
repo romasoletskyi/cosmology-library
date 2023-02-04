@@ -160,3 +160,28 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
     return HomogenousHistory{SplineBuilder().buildFromPoints(samplePoints(eta, a, pointsNumber)),
                              SplineBuilder().buildFromPoints(samplePoints(eta, Xe, pointsNumber))};
 }
+
+void writeHomogenousHistoryTo(std::ostream& stream, const HomogenousHistory& history) {
+    stream << history.a.getKnots().size() - 1 << "\n";
+
+    for (size_t i = 0; i < history.a.getKnots().size() - 1; ++i) {
+        stream << history.a.getKnots()[i] << " " << history.a.getPolynomials()[i] << " " << history.Xe.getPolynomials()[i] << "\n";
+    }
+    stream << history.a.getKnots().back();
+}
+
+HomogenousHistory readHomogenousHistoryFrom(std::istream &stream) {
+    size_t size;
+    stream >> size;
+
+    std::vector<double> eta(size + 1);
+    std::vector<CubicPolynomial> aPoly(size);
+    std::vector<CubicPolynomial> XePoly(size);
+
+    for (size_t i = 0; i < size; ++i) {
+        stream >> eta[i] >> aPoly[i] >> XePoly[i];
+    }
+    stream >> eta[size];
+
+    return HomogenousHistory{Spline(eta, aPoly), Spline(eta, XePoly)};
+}
