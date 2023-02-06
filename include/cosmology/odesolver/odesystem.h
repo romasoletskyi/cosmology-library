@@ -103,6 +103,129 @@ namespace formula {
         Port<Value, Time> port;
     };
 
+    struct Batch {
+        std::vector<parser::Token> direct;
+        std::vector<parser::Token> inverse;
+        int sign = 1;
+    };
+
+    class BatchVisitor {
+    private:
+        using Range = std::pair<int, int>;
+
+    public:
+        void discoverVertex(parser::SyntaxTree::Node * /*vertex*/) {
+        }
+
+        void discoverBackEdge(parser::SyntaxTree::Node */*vertex*/, parser::SyntaxTree::Node */*neighbor*/) {
+        }
+
+        void leaveVertex(parser::SyntaxTree::Node *node) {
+            using namespace parser;
+
+            switch (node->token.first) {
+                case Lexeme::Variable:
+                case Lexeme::Number: {
+                    batches_.push_back({{node->token}});
+                    ends_.push_back(batches_.size());
+                    break;
+                }
+                case Lexeme::Plus: {
+                    auto [leftRange, rightRange] = getBinaryOperatorRanges();
+                    ends_.push_back(rightRange.second);
+                    break;
+                }
+                case Lexeme::Minus: {
+                    Range range;
+
+                    if (node->left) {
+                        range = getBinaryOperatorRanges().second;
+                    } else {
+                        range = getUnaryOperatorRange();
+                    }
+
+                    for (int i = range.first; i < range.second; ++i) {
+                        batches_[i].sign *= -1;
+                    }
+
+                    ends_.push_back(range.second);
+                    break;
+                }
+                case Lexeme::Multiplication:
+                    performDistributiveOperation(multiply);
+                    break;
+                case Lexeme::Division:
+                    performDistributiveOperation(divide);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        std::vector<Batch> getBatches() {
+            return std::move(batches_);
+        }
+
+    private:
+        Range getUnaryOperatorRange() {
+            int end = ends_.back();
+            ends_.pop_back();
+
+            if (ends_.empty()) {
+                return std::make_pair(0, end);
+            }
+
+            return std::make_pair(ends_.back(), end);
+        }
+
+        std::pair<Range, Range> getBinaryOperatorRanges() {
+            auto rightRange = getUnaryOperatorRange();
+            auto leftRange = getUnaryOperatorRange();
+            return std::make_pair(leftRange, rightRange);
+        }
+
+        std::vector<Batch> popBatches(Range range) {
+            std::vector<Batch> batches;
+            batches.insert(batches.end(), batches_.begin() + range.first, batches_.begin() + range.second);
+            batches_.erase(batches_.begin() + range.first, batches_.begin() + range.second);
+            return batches;
+        }
+
+        void performDistributiveOperation(std::function<Batch(const Batch &, const Batch &)> operation) {
+            auto [leftRange, rightRange] = getBinaryOperatorRanges();
+            auto rightBatches = popBatches(rightRange);
+            auto leftBatches = popBatches(leftRange);
+
+            for (const auto &leftBatch: leftBatches) {
+                for (const auto &rightBatch: rightBatches) {
+                    batches_.emplace_back(operation(leftBatch, rightBatch));
+                }
+            }
+
+            ends_.push_back(batches_.size());
+        }
+
+        static Batch multiply(const Batch &lhs, const Batch &rhs) {
+            auto batch = lhs;
+            batch.direct.insert(batch.direct.end(), rhs.direct.begin(), rhs.direct.end());
+            batch.inverse.insert(batch.inverse.end(), rhs.inverse.begin(), rhs.inverse.end());
+            batch.sign *= rhs.sign;
+            return batch;
+        }
+
+        static Batch divide(const Batch &lhs, const Batch &rhs) {
+            auto batch = lhs;
+            batch.direct.insert(batch.direct.end(), rhs.inverse.begin(), rhs.inverse.end());
+            batch.inverse.insert(batch.inverse.end(), rhs.direct.begin(), rhs.direct.end());
+            batch.sign /= rhs.sign;
+            return batch;
+        }
+
+    private:
+        std::vector<Batch> batches_;
+        std::vector<int> ends_;
+    };
+
     template<class Value, class Time>
     class SystemBuilder {
     public:
@@ -232,7 +355,7 @@ namespace formula {
 
     private:
         void parseEquationsWithVariables(const OdeSolver<Value, Time> &solver, const std::vector<int> &variables,
-                                         std::function<void(parser::ExpressionLexer &, const std::string &)> checker,
+                                         const std::function<void(parser::ExpressionLexer &, const std::string &)>& checker,
                                          System<Value, Time> &system) {
             using namespace parser;
 
@@ -279,129 +402,6 @@ namespace formula {
                 throw std::logic_error("equation doesn't have ... = ... structure");
             }
         }
-
-        struct Batch {
-            std::vector<parser::Token> direct;
-            std::vector<parser::Token> inverse;
-            int sign = 1;
-        };
-
-        class BatchVisitor {
-        private:
-            using Range = std::pair<int, int>;
-
-        public:
-            void discoverVertex(parser::SyntaxTree::Node * /*vertex*/) {
-            }
-
-            void discoverBackEdge(parser::SyntaxTree::Node */*vertex*/, parser::SyntaxTree::Node */*neighbor*/) {
-            }
-
-            void leaveVertex(parser::SyntaxTree::Node *node) {
-                using namespace parser;
-
-                switch (node->token.first) {
-                    case Lexeme::Variable:
-                    case Lexeme::Number: {
-                        batches_.push_back({{node->token}});
-                        ends_.push_back(batches_.size());
-                        break;
-                    }
-                    case Lexeme::Plus: {
-                        auto [leftRange, rightRange] = getBinaryOperatorRanges();
-                        ends_.push_back(rightRange.second);
-                        break;
-                    }
-                    case Lexeme::Minus: {
-                        Range range;
-
-                        if (node->left) {
-                            range = getBinaryOperatorRanges().second;
-                        } else {
-                            range = getUnaryOperatorRange();
-                        }
-
-                        for (int i = range.first; i < range.second; ++i) {
-                            batches_[i].sign *= -1;
-                        }
-
-                        ends_.push_back(range.second);
-                        break;
-                    }
-                    case Lexeme::Multiplication:
-                        performDistributiveOperation(multiply);
-                        break;
-                    case Lexeme::Division:
-                        performDistributiveOperation(divide);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            std::vector<Batch> getBatches() {
-                return std::move(batches_);
-            }
-
-        private:
-            Range getUnaryOperatorRange() {
-                int end = ends_.back();
-                ends_.pop_back();
-
-                if (ends_.empty()) {
-                    return std::make_pair(0, end);
-                }
-
-                return std::make_pair(ends_.back(), end);
-            }
-
-            std::pair<Range, Range> getBinaryOperatorRanges() {
-                auto rightRange = getUnaryOperatorRange();
-                auto leftRange = getUnaryOperatorRange();
-                return std::make_pair(leftRange, rightRange);
-            }
-
-            std::vector<Batch> popBatches(Range range) {
-                std::vector<Batch> batches;
-                batches.insert(batches.end(), batches_.begin() + range.first, batches_.begin() + range.second);
-                batches_.erase(batches_.begin() + range.first, batches_.begin() + range.second);
-                return batches;
-            }
-
-            void performDistributiveOperation(std::function<Batch(const Batch &, const Batch &)> operation) {
-                auto [leftRange, rightRange] = getBinaryOperatorRanges();
-                auto rightBatches = popBatches(rightRange);
-                auto leftBatches = popBatches(leftRange);
-
-                for (const auto &leftBatch: leftBatches) {
-                    for (const auto &rightBatch: rightBatches) {
-                        batches_.emplace_back(operation(leftBatch, rightBatch));
-                    }
-                }
-
-                ends_.push_back(batches_.size());
-            }
-
-            static Batch multiply(const Batch &lhs, const Batch &rhs) {
-                auto batch = lhs;
-                batch.direct.insert(batch.direct.end(), rhs.direct.begin(), rhs.direct.end());
-                batch.inverse.insert(batch.inverse.end(), rhs.inverse.begin(), rhs.inverse.begin());
-                batch.sign *= rhs.sign;
-                return batch;
-            }
-
-            static Batch divide(const Batch &lhs, const Batch &rhs) {
-                auto batch = lhs;
-                batch.direct.insert(batch.direct.end(), rhs.inverse.begin(), rhs.inverse.end());
-                batch.inverse.insert(batch.inverse.end(), rhs.direct.begin(), rhs.direct.end());
-                batch.sign /= rhs.sign;
-                return batch;
-            }
-
-        private:
-            std::vector<Batch> batches_;
-            std::vector<int> ends_;
-        };
 
         std::vector<Batch> getBatches(const parser::SyntaxTree &tree) {
             BatchVisitor visitor;

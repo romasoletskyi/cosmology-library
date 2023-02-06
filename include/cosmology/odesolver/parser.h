@@ -3,7 +3,7 @@
 #include <istream>
 #include <unordered_set>
 #include <unordered_map>
-#include <queue>
+#include <deque>
 #include <string>
 #include <utility>
 
@@ -112,6 +112,7 @@ namespace parser {
     private:
         std::string consumeNumber() {
             std::string number;
+            bool floatingPoint = false;
 
             while (stream_) {
                 char c = static_cast<char>(stream_.peek());
@@ -119,6 +120,13 @@ namespace parser {
                 if (c >= '0' && c <= '9') {
                     stream_ >> c;
                     number.push_back(c);
+                } else if (c == '.') {
+                    if (floatingPoint) {
+                        break;
+                    }
+                    stream_ >> c;
+                    number.push_back(c);
+                    floatingPoint = true;
                 } else {
                     break;
                 }
@@ -133,6 +141,7 @@ namespace parser {
         inline static const std::unordered_set<char> specialSymbols_{'+', '-', '*', '/', '=', '\'', ' ', '(', ')'};
     };
 
+    // inserts multiplication sign where it's implied as (a b) -> (a * b)
     class ExpressionLexer {
     public:
         ExpressionLexer(const Trie &trie, std::istream &stream) : lexer_(trie, stream) {
@@ -144,24 +153,24 @@ namespace parser {
                 if (!isBatchStart(token)) {
                     return token;
                 } else {
-                    valueQueue_.push(token);
+                    valueQueue_.push_back(token);
                 }
             }
             if (valueQueue_.size() == 1 && isBatchStart(valueQueue_.back())) {
                 while (true) {
                     Token token = lexer_.next();
                     if (isBatchContinuation(token)) {
-                        valueQueue_.push({Lexeme::Multiplication, ""});
-                        valueQueue_.push(token);
+                        valueQueue_.emplace_back(Lexeme::Multiplication, "");
+                        valueQueue_.push_back(token);
                     } else {
-                        valueQueue_.push(token);
+                        valueQueue_.push_back(token);
                         break;
                     }
                 }
             }
             if (!valueQueue_.empty()) {
                 Token token = valueQueue_.front();
-                valueQueue_.pop();
+                valueQueue_.pop_front();
                 return token;
             } else {
                 return {Lexeme::End, ""};
@@ -189,7 +198,7 @@ namespace parser {
 
     private:
         RawExpressionLexer lexer_;
-        std::queue<Token> valueQueue_;
+        std::deque<Token> valueQueue_;
     };
 
     class SyntaxTree {
@@ -280,7 +289,7 @@ namespace parser {
             }
         }
 
-        static int order(Node *node) {
+        static int order(Node *node, Node *other) {
             switch (node->token.first) {
                 case Lexeme::Variable:
                 case Lexeme::Number:
@@ -291,7 +300,7 @@ namespace parser {
                 case Lexeme::Plus:
                     return 3;
                 case Lexeme::Minus: {
-                    if (node->left) {
+                    if (node->left || other->right) {
                         return 3;
                     }
                     return 1;
@@ -308,7 +317,7 @@ namespace parser {
             if (!lhs) {
                 return true;
             }
-            return lhs->level > rhs->level || (lhs->level == rhs->level && order(lhs) < order(rhs));
+            return lhs->level > rhs->level || (lhs->level == rhs->level && order(lhs, rhs) < order(rhs, lhs));
         }
 
     private:

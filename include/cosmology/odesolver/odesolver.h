@@ -136,6 +136,10 @@ public:
         return variables_;
     }
 
+    const std::vector<std::string> &getEquations() const {
+        return equations_;
+    }
+
 private:
     void checkName(const std::string &name) {
         if (name[0] >= '0' && name[0] <= '9') {
