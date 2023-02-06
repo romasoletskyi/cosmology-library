@@ -14,4 +14,4 @@ HomogenousHistory readHomogenousHistoryFrom(std::istream& stream);
 
 HomogenousHistory getHomogenousHistory(int pointsNumber);
 
-std::vector<double> getTransferFunctions(double kMode);
+void getTransferFunctions(const HomogenousHistory& history);

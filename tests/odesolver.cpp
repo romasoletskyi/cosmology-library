@@ -106,6 +106,21 @@ TEST(Lexer, Brackets) {
     }
 }
 
+TEST(Lexer, DoubleBrackets) {
+    using namespace parser;
+    std::stringstream ss("dPhi = Psi da / a + a / (3 da) * (-k * k * Phi + 1.5 (omega_c delta_c + omega_b delta_b) / a + 6 (omega_gamma Theta_0 + omega_nu N_0) / (a * a))");
+
+    Trie trie;
+    for (const auto &string: {"dPhi", "Psi", "da", "a", "k", "Phi", "omega_c", "delta_c", "omega_b", "delta_b", "omega_gamma", "Theta_0", "omega_nu", "N_0"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer parser(trie, ss);
+    for (int i = 0; i < 100; ++i) {
+        auto [lexeme, variable] = parser.next();
+    }
+}
+
 TEST(SyntaxTree, Basic) {
     using namespace parser;
     std::stringstream ss("7 a y + 3 z");
@@ -172,6 +187,61 @@ TEST(SyntaxTree, Brackets) {
     ASSERT_EQ(root->right->left->level, 1);
     ASSERT_EQ(root->right->right->token, pair(Lexeme::Variable, "b"));
     ASSERT_EQ(root->right->right->level, 1);
+}
+
+TEST(SyntaxTree, Subtraction) {
+    using namespace parser;
+    std::stringstream ss("2 a - 3 b");
+
+    Trie trie;
+    for (const auto &string: {"a", "b"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer lexer(trie, ss);
+
+    SyntaxTree tree;
+    tree.build(lexer);
+    auto root = tree.getRoot();
+
+    ASSERT_EQ(root->token.first, Lexeme::Minus);
+    ASSERT_EQ(root->left->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->left->left->token, pair(Lexeme::Number, "2"));
+    ASSERT_EQ(root->left->right->token, pair(Lexeme::Variable, "a"));
+    ASSERT_EQ(root->right->token.first, Lexeme::Multiplication);
+    ASSERT_EQ(root->right->left->token, pair(Lexeme::Number, "3"));
+    ASSERT_EQ(root->right->right->token, pair(Lexeme::Variable, "b"));
+}
+
+TEST(SystemBuilder, BatchVisitor) {
+    using namespace parser;
+    std::stringstream ss("-3 ((-Phi) da / a + b)");
+
+    Trie trie;
+    for (const auto &string: {"delta_c", "Phi", "da", "a", "b"}) {
+        trie.addString(string);
+    }
+
+    ExpressionLexer lexer(trie, ss);
+
+    SyntaxTree tree;
+    tree.build(lexer);
+
+    formula::BatchVisitor visitor;
+    graph::DepthFirstSearch(tree, tree.getRoot(), visitor);
+
+    auto batches = visitor.getBatches();
+
+    ASSERT_EQ(batches.size(), 2);
+    ASSERT_EQ(batches[0].direct[0], pair(Lexeme::Number, "3"));
+    ASSERT_EQ(batches[0].direct[1], pair(Lexeme::Variable, "Phi"));
+    ASSERT_EQ(batches[0].direct[2], pair(Lexeme::Variable, "da"));
+    ASSERT_EQ(batches[0].inverse[0], pair(Lexeme::Variable, "a"));
+    ASSERT_EQ(batches[0].sign, 1);
+    ASSERT_EQ(batches[1].direct[0], pair(Lexeme::Number, "3"));
+    ASSERT_EQ(batches[1].direct[1], pair(Lexeme::Variable, "b"));
+    ASSERT_TRUE(batches[1].inverse.empty());
+    ASSERT_EQ(batches[1].sign, -1);
 }
 
 TEST(SystemBuilder, TwoEquations) {
@@ -407,6 +477,6 @@ TEST(OdeSolver, RungeKuttaOrder) {
 
 int main() {
     ::testing::InitGoogleTest();
-    ::testing::GTEST_FLAG(filter) = "OdeSolver*RungeKuttaOrder";
+    ::testing::GTEST_FLAG(filter) = "SystemBuilder*BatchVisitor";
     return RUN_ALL_TESTS();
 }

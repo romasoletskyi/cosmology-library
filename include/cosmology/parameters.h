@@ -7,6 +7,7 @@ struct PhysParameters {
 
     double evInKelvin = 11605; // translate from K to ev as T -> T / ev_in_kelvin
     double critInEv = 8.616e-20; // proton concentration at a = 1, \omega_b = 1 in ev^3
+    double thomsonInEv = 1.708e-15; // Thomson scattering cross-section in ev^-2
     double evInCosmoFrequency = 4.6905e32; // 1 ev corresponds to evInCosmoFrequency measured in 100 km / (Mpc s) units
 };
 
