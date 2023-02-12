@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.8.28)  12 FEB 2023 19:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.8.28)  12 FEB 2023 21:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -744,7 +744,7 @@ LaTeX Font Info:    Trying to load font information for T2A+cmss on input line
 (/usr/share/texlive/texmf-dist/tex/latex/cyrillic/t2acmss.fd
 File: t2acmss.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
 )
-<FIG0(1)(1).png, id=64, 674.52pt x 255.95625pt>
+<FIG0(1)(1).png, id=76, 674.52pt x 255.95625pt>
 File: FIG0(1)(1).png Graphic file (type png)
 <use FIG0(1)(1).png>
 Package pdftex.def Info: FIG0(1)(1).png  used on input line 58.
@@ -766,7 +766,7 @@ LaTeX Font Warning: Font shape `T2A/cmss/m/sc' in size <24.88> not available
 LaTeX Font Warning: Font shape `T2A/cmss/bx/sc' undefined
 (Font)              using `T2A/cmss/bx/n' instead on input line 70.
 
-<FIG(1)(1).png, id=67, 453.695pt x 250.9375pt>
+<FIG(1)(1).png, id=79, 453.695pt x 250.9375pt>
 File: FIG(1)(1).png Graphic file (type png)
 <use FIG(1)(1).png>
 Package pdftex.def Info: FIG(1)(1).png  used on input line 72.
@@ -779,12 +779,12 @@ LaTeX Font Warning: Font shape `T2A/cmss/m/sc' in size <14.4> not available
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./FIG0(1)(1).png> <./FIG(1
 )(1).png>]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 89.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 96.
 
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 89.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 96.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -802,7 +802,7 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.134 	\end{equation}
+l.119 	\end{equation}
                       [1]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -894,7 +894,16 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [11]
-Overfull \hbox (4.44989pt too wide) detected at line 532
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[12]
+Overfull \hbox (4.44989pt too wide) detected at line 578
 [][]\OMS/cmsy/m/n/12 h\OML/cmm/m/it/12 ^^N[]\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 k
 \OT1/cmr/m/n/12 )[]\OMS/cmsy/m/n/12 i \OT1/cmr/m/n/12 = [] [] \OML/cmm/m/it/12 
 d\OT1/cmr/bx/n/12 k\OML/cmm/m/it/12 d[] [] d\OT1/cmr/bx/n/12 r\OML/cmm/m/it/12 
@@ -913,7 +922,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[12]
+[13]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -922,7 +931,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[13] (./extraction.bbl)
+[14] (./extraction.bbl
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -931,21 +940,30 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[14] (./extraction.aux)
+[15])
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[16] (./extraction.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `extraction.out' has not changed.
-(rerunfilecheck)             Checksum: 3FE302E7BEF69FB7416A7745823AC441;2307.
+(rerunfilecheck)             Checksum: B132B0D20DD0F7327CEBECCE79FE3E89;2656.
  ) 
 Here is how much of TeX's memory you used:
- 14226 strings out of 479648
- 222085 string characters out of 5886115
- 535819 words of memory out of 5000000
- 31847 multiletter control sequences out of 15000+600000
- 481978 words of font info for 61 fonts, out of 8000000 for 9000
+ 14252 strings out of 479648
+ 222432 string characters out of 5886115
+ 536239 words of memory out of 5000000
+ 31860 multiletter control sequences out of 15000+600000
+ 482147 words of font info for 62 fonts, out of 8000000 for 9000
  475 hyphenation exceptions out of 8191
- 60i,12n,63p,840b,436s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,12n,63p,934b,463s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/roman/.texlive2021/texmf-var/fonts/pk/ljfour/lh/lh-t2a/lacc1440.600pk
 > </home/roman/.texlive2021/texmf-var/fonts/pk/ljfour/lh/lh-t2a/lacc1200.600pk>
  </home/roman/.texlive2021/texmf-var/fonts/pk/ljfour/lh/lh-t2a/lasx2488.600pk> 
@@ -962,11 +980,12 @@ ts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 sy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pf
 b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on extraction.pdf (15 pages, 341790 bytes).
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on extraction.pdf (17 pages, 355644 bytes).
 PDF statistics:
- 500 PDF objects out of 1000 (max. 8388607)
- 371 compressed objects within 4 object streams
- 142 named destinations out of 1000 (max. 500000)
- 131 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 551 PDF objects out of 1000 (max. 8388607)
+ 417 compressed objects within 5 object streams
+ 154 named destinations out of 1000 (max. 500000)
+ 155 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -74,7 +74,7 @@
 			
 			\begin{center}
 				\textsc{Supervisors: Erwan Allys, François Levrier}\\
-				\textsc{Authors: Roman Soletskyi}
+				\textsc{Author: Roman Soletskyi}
 				\vfill
 				{\textsc{ \large February 2022}}
 				
@@ -83,6 +83,13 @@
 	\end{titlepage}
 	
 	\selectlanguage{english}
+	\section{Introduction}
+	The study of the cosmos is one of the most fascinating and complex areas of scientific inquiry. A crucial aspect of cosmology is the estimation of cosmological parameters, which describe the fundamental properties of our universe. Examples of such parameters are fractions of total energy density for each constituent (baryons, dark matter, dark energy) and the Hubble constant. 
+	
+	This report focuses on the extraction of these parameters from observational data and provides a sketch of how one could achieve this task with needed theoretical derivations. According to a review~\cite{weinberg:2013}, the main methods of estimating the cosmological parameters are observations of Cosmic Microwave Background (CMB), Baryonic Acoustic Oscillations (BAO), Type Ia supernovae, weak gravitational lensing, and galaxy clusters. We have decided to focus on the first two methods, since they both share interesting theory, while supernovae observations have more experimental-focused problems.
+	
+	The report begins with a theoretical section~\ref{sec:linear} on linear perturbations and their evolution in the cosmological background. The theory of linear perturbations is applied in section~\ref{sec:cmb} to estimate the spectrum of CMB radiation, which provides a wealth of information about the early universe. The report then explores the estimation of the power spectrum of galaxies from galaxy catalogs in section~\ref{sec:power}. This information is used to further refine our understanding of the large-scale structure of the universe and, in parallel, to observe BAO. Finally, the report concludes with a section~\ref{sec:estimate} on the estimation of cosmological parameters using Bayesian statistics and Monte Carlo Markov Chains. These statistical tools provide a powerful means of extracting the most accurate values for the parameters of our universe from the observational data.
+	
 	\section{Linear perturbations}
 	\label{sec:linear}
 	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov-2:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
@@ -296,9 +303,46 @@
 	\end{multline}
 	where we have defined quadrupole $\Theta_2$ (noting that $(3\mu^2 - 1) / 2$ is second Legendre polynomial). Combining sorts of particles at the right side, we obtain first order equations for metric perturbations
 	\begin{align}
+		\label{eq:phi}
 		& k^2\Phi + 3\frac{a'}{a}\left(\Phi' - \frac{a'}{a}\Psi\right) = 4\pi Ga^2[\rho_c\delta_c + \rho_b\delta_b + 4\rho_\gamma\Theta_0 + 4\rho_\nu\mathcal{N}_0] \\
+		\label{eq:psi}
 		& k^2(\Phi + \Psi) = -32\pi Ga^2[\rho_\gamma\Theta_2 + \rho_\nu\mathcal{N}_2]
 	\end{align}
+
+	\subsection{Initial conditions}
+	Apart from evolution equations, we need to set initial conditions for each variable. During the inflation, primordial perturbations of curvature $\mathcal{R}$ are generated and then freeze out. We consider such times after inflation $\eta$ that $\eta > 0$ and $k\eta\ll 1$, meaning that corresponding mode is super-horizon. 
+	
+	Consider in such conditions the equation~\ref{eq:theta}. One argues that since $k\eta\ll 1$, $\Theta'\gg ik\Theta$. Also, one expects that all velocities $u_b$ and multipoles $\Theta_1, \Theta_2, ...$ are suppressed by powers of $k$. Indeed, it can be seen from multipole equations~\ref{eq:theta:0},\ref{eq:theta:1},\ref{eq:theta:high_l} derived later. Thus, one simplifies to
+	\begin{equation}
+		\label{eq:theta:super-horizon}
+		\Theta_0' + \Phi' = 0
+	\end{equation}
+
+	For neutrinos we have the same result. For dark and baryonic matter, we have
+	\begin{equation}
+		\label{eq:delta:super-horizon}
+		\delta'_{c,b} + 3\Phi' = 0
+	\end{equation}
+	Since multipoles are suppressed, equation~\ref{eq:psi} implies that $\Psi = -\Phi$. We take $\eta$ to be small enough for radiation to dominate, which allows to simplify~\ref{eq:phi} to
+	\begin{equation}
+		3\frac{a'}{a}(\Phi' + \frac{a'}{a}\Phi) = 16\pi Ga^2(\rho_\gamma\Theta_0 + \rho_\nu\mathcal{N}_0)
+	\end{equation}
+
+	According to inflation theory, perturbations are adiabatic, we can expect that $\Theta_0 = \mathcal{N}_0$ due to same relativistic nature. Then we can use Friedmann equation and radiation-dominated behavior $a\sim\eta$ to write
+	\begin{equation}
+		16\pi Ga^2(\rho_\gamma\Theta_0 + \rho_\nu\mathcal{N}_0) = 6\Theta_0\frac{8\pi Ga^2}{3}(\rho_\gamma + \rho_\nu) = 6\Theta_0\left(\frac{\dot{a}}{a}\right)^2 = \frac{6\Theta_0}{\eta^2}
+	\end{equation}
+	Substituting, we obtain 
+	\begin{equation}
+		\label{eq:phi-theta:super-horizon}
+		\Phi + \eta\Phi' = 2\Theta_0
+	\end{equation} Differentiating and using~\ref{eq:theta:super-horizon}, obtain $\eta\Phi'' + 4\Phi' = 0$. This has a constant and a decaying mode $\Phi\sim1/\eta^3$, which is not relevant. The constant mode and equation~\ref{eq:phi-theta:super-horizon} implies that $\Phi = 2\Theta_0$. Equation~\ref{eq:delta:super-horizon} implies that $\delta_{c,b} - 3\Theta_0 = c(\mathbf{k})$ and since perturbations are adiabatic, meaning that $n_{c,b} / n_\gamma$ is constant in space, gives simply $\delta_{c,b} = 3\Theta_0$.
+
+	In inflation theory, which we will not discuss here, it is proven that $\mathcal{R} = -3/2\Psi$ in the end of the inflation and one can thus give all initial conditions in terms of curvature perturbation $\mathcal{R}$ as
+	\begin{equation}
+		\Phi = -\Psi = \frac{2}{3}\mathcal{R};\quad \Theta_0 = \mathcal{N}_0 = \frac{1}{3}\mathcal{R};\quad \delta_b = \delta_c = \mathcal{R}
+	\end{equation}
+	All other multipoles are set to zero. It is important to stress that when solving the equations in practice, one obligatory has to start when radiation dominates and $k\eta\ll 1$ in order for made assumptions to be valid.
 
 	\section{CMB}
 	\label{sec:cmb}
@@ -426,7 +470,9 @@
 	\end{equation}
 	We have pushed problem of finding $\Theta_l$ onto computing $S(k, \eta)$. Let us obtain a hierarchy of differential equations describing $\Theta_l$ evolution, which can be obtained directly from~\ref{eq:theta}, the multipole's definition~\ref{eq:theta:multipole} and Legendre polynomials recursion formula $(2l + 1)\mu P_l(\mu) = (l + 1)P_{l + 1}(\mu) + lP_{l - 1}(\mu)$
 	\begin{align}
+		\label{eq:theta:0}
 		& \Theta'_0 = -k\Theta_1 - \Phi'\\
+		\label{eq:theta:1}
 		& \Theta'_1 = \frac{k}{3}\left[\Theta_0 - 2\Theta_2 + \Psi\right] + \tau'\left[\Theta_1 - \frac{iu_b}{3}\right] \\
 		\label{eq:theta:high_l}
 		& \Theta'_l = \tau'\Theta_l + \frac{k}{2l + 1}\left[l\Theta_{l - 1} - (l + 1)\Theta_{l + 1}\right]
@@ -448,7 +494,7 @@
 	\begin{equation}
 		\langle\delta^*(\mathbf{k}, \eta)\delta(\mathbf{k}', \eta)\rangle = (2\pi)^3\delta(\mathbf{k} - \mathbf{k}')P(\mathbf{k}, \eta);\quad P(\mathbf{k}, \eta) = P_{\mathcal{R}}(k)|\mathcal{T}(\mathbf{k}, \eta)|^2
 	\end{equation}
-	where $P_{\mathcal{R}}(k)$ is the spectrum of primordial curvature perturbations and $\delta$ is a placeholder for different (matter and gravity) perturbations. Thus, spectrum $P(\mathbf{k}, \eta)$ should contain if not all (when we enter non-linear regime), but a lot of information on evolution of perturbations and it would be desirable to estimate it. In this section we analyze how to obtain power spectrum $P(k)$ of matter perturbations from large galaxy surveys.
+	where $P_{\mathcal{R}}(k)$ is the spectrum of primordial curvature perturbations and $\delta$ is a placeholder for different (matter and gravity) perturbations. Thus, spectrum $P(\mathbf{k}, \eta)$ should contain if not all (when we enter non-linear regime), but a lot of information on evolution of perturbations and it would be desirable to estimate it. For instance, one can observe BAO in the spectrum. In this section we analyze how to estimate power spectrum $P(k)$ of matter perturbations from large galaxy surveys.
 	
 	\subsection{Band estimate}
 	Following~\cite{peebles:1980}[Chapter 33] we suppose that galaxies are sampled following two-stage random process:
@@ -541,7 +587,8 @@
 	since usually one takes $\alpha\ll 1$.
 	
 	\section{Parameter estimation}
-	Given model of perturbations evolution, which was described in sections~\ref{sec:linear},\ref{sec:cmb}, and an estimator of CMB and power spectrum, which were described in subsection~\ref{subsec:cmb-obs} and section~\ref{sec:power}, respectively, we can finally pose a parameter-inference problem. We are going to do in a somewhat abstract matter in order to showcase common points for all cosmological observations. The discussion is loosely based on~\cite{padilla:2021}.
+	\label{sec:estimate}
+	Given model of perturbations evolution, which was described in sections~\ref{sec:linear},\ref{sec:cmb}, and an estimator of CMB and power spectrum, which were described in subsection~\ref{subsec:cmb-obs} and section~\ref{sec:power}, respectively, we can finally pose a parameter-inference problem. We are going to do that in a somewhat abstract matter in order to showcase common points for all cosmological observations. The discussion is loosely based on~\cite{padilla:2021}.
 	
 	Imagine that one have measured data points $\hat{x}_i$ and their respective errors $\sigma_i$. In case of CMB, those are $C_l$ and error depends on observation uncertainties and natural stochasticity of $C_l$. In case of power spectrum, data points are estimations $\hat{P}(k)$ and squares of errors are $\langle\delta\hat{P}(k)^2\rangle$, which were calculated in section~\ref{sec:power}. 
 	
@@ -556,7 +603,7 @@
 	\end{equation}
 	As it often happens, Bayesian inference is hard to perform exactly because there is a multidimensional integral over $\theta$-space, which needs to be computed. Moreover, if we wanted to obtain different posterior statistics of $\theta$ like $\mathbf{E}_{\theta\sim p(\theta|X)}[\theta]$, we would need to perform a multidimensional integral again. 
 	
-	Fortunately, there is Metropolis-Hastings algorithm, which allows to sample parameters $\theta$ according to $p(\theta|X)$ distribution without additional costs. By sampling enough times, one can then easily calculate mean and dispersion of $\theta$. Algorithm runs as follows:
+	Fortunately, there is Metropolis-Hastings algorithm, a type of Monte-Carlo chain, which allows to sample parameters $\theta$ according to $p(\theta|X)$ distribution without additional costs. By sampling enough times, one can then easily calculate mean and dispersion of $\theta$. Algorithm runs as follows:
 	\begin{enumerate}
 		\item Start at $t=1$ and generate arbitrary point $\theta_t$.
 		\item Generate new candidate $\theta_{t+1}\sim q(\theta_{t+1}|\theta_t)$ - usually one does small random steps in parameters space.
@@ -567,6 +614,9 @@
 		If candidate is rejected, set $\theta_{t+1} = \theta_t$.
 		\item Repeat steps 2 and 3 until sufficient number of points is generated. Sufficient number simply means that searched statistics like $\mathbf{E}_{\theta\sim p(\theta|X)}[\theta]$ are approached by empirical statistics like $\sum_{t=1}^T \theta_t / T$ in a convergent manner.
 	\end{enumerate}
+
+	\section{Conclusion}
+	In conclusion, this report has provided an overview of the methods used to extract cosmological parameters from observational data. The study of linear perturbations and their evolution in the cosmological background, the estimation of the spectrum of CMB radiation, the estimation of the power spectrum of galaxies from galaxy catalogs, and the use of Bayesian statistics and Monte Carlo chains to estimate parameters, all play a crucial role in the study of cosmology. This report has demonstrated how these techniques can be used to gain a deeper understanding of the universe and its fundamental properties. The next logical step is an implementation of these techniques in a working computational code, which is currently being developed at \url{https://github.com/romasoletskyi/cosmology-library}.
 	
 	\bibliographystyle{plain}
 	\bibliography{refs.bib}
