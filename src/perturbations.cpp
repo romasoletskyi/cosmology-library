@@ -1,9 +1,10 @@
 #include <optional>
 #include <iostream>
 
-#include <cosmology/perturbations.h>
 #include <cosmology/odesolver/odesolver.h>
 #include <cosmology/utility/math.h>
+#include <cosmology/utility/utility.h>
+#include <cosmology/perturbations.h>
 #include <cosmology/parameters.h>
 
 constexpr double pi = 3.14159265358979323846;
@@ -103,7 +104,7 @@ samplePoints(const std::vector<double> &time, const std::vector<double> &value, 
     return points;
 }
 
-std::vector<double> makeFineGrid(const std::vector<double>& grid, int factor) {
+std::vector<double> makeFineGrid(const std::vector<double> &grid, int factor) {
     std::vector<double> fine;
     fine.reserve(grid.size() * factor);
 
@@ -136,10 +137,23 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
 
         double T = cosmo.cmb / a / phys.evInKelvin;
         double nb = phys.critInEv * cosmo.omegaBaryon / std::pow(a, 3);
-        double cross_section = 9.78 * std::pow(phys.alpha, 2) / std::pow(phys.me, 2) * std::sqrt(phys.delta / T) *
+        double cross_section = 9.78 * phys.evInCosmoFrequency * std::pow(phys.alpha, 2) / std::pow(phys.me, 2) *
+                               std::sqrt(phys.delta / T) *
                                std::log(phys.delta / T);
 
-        return a * phys.evInCosmoFrequency * cross_section *
+        double da = std::sqrt(cosmo.omegaLambda * std::pow(a, 4) + (cosmo.omegaBaryon + cosmo.omegaCold) * a +
+                              (cosmo.omegaPhoton + cosmo.omegaNeutrino));
+        double wavelength_in_inverse_ev = 2 * pi / (0.75 * phys.delta); // 2s -> 1s transition
+        double lambda_alpha = phys.cosmoFrequencyInHz * 8 * pi * a * da /
+                              ((1 - Xe) * phys.critInEv * cosmo.omegaBaryon *
+                               std::pow(wavelength_in_inverse_ev, 3)); // cosmological redshifting of Lyman photons rate
+
+        double lambda_beta = phys.cosmoFrequencyInHz * cross_section * std::pow(phys.me * T / 2 / pi, 1.5) *
+                             std::exp(-phys.delta / 4 / T); // ionization rate
+        double lambda_two_photons = 8.227; // 2s -> 1s 2-photon transition rate
+        double cr = (lambda_two_photons + lambda_alpha) / (lambda_alpha + lambda_two_photons + lambda_beta);
+
+        return a * cross_section * cr *
                (std::pow(phys.me * T / 2 / pi, 1.5) * std::exp(-phys.delta / T) * (1 - Xe) - nb * Xe * Xe);
     }, {"a", "Xe"});
 
@@ -147,32 +161,76 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
     solver.addEquation("Xe' = dXe");
     solver.compile<walker::RungeKuttaWalker<double, double>>();
 
-    double etaStart = 0;
     double etaDelta = 2e-4;
     double aStart = 6.6e-4;
+    double etaStart = 2 * (std::sqrt(aStart * (cosmo.omegaBaryon + cosmo.omegaCold) + (cosmo.omegaPhoton + cosmo.omegaNeutrino)) - std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino)) / (cosmo.omegaBaryon + cosmo.omegaCold);
     double TStart = cosmo.cmb / aStart / phys.evInKelvin;
     double nbStart = phys.critInEv * cosmo.omegaBaryon / std::pow(aStart, 3);
     double XeStart = 1 - nbStart * std::exp(phys.delta / TStart) * std::pow(phys.me * TStart / 2 / pi, -1.5);
-    std::vector<double> eta, a, Xe;
 
+    double etaCalculatedStart = 1e-5 / std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino);
+    auto etaCalculated = linSpace(etaCalculatedStart, etaStart, pointsNumber / 10);
+    std::vector<std::pair<double, double>> aCalculated, XeCalculated;
+
+    for (size_t i = 0; i < etaCalculated.size() - 1; ++i) {
+        double eta = etaCalculated[i];
+        double a = std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino) * eta + (cosmo.omegaBaryon + cosmo.omegaCold) * std::pow(eta, 2) / 4;
+        double nb = phys.critInEv * cosmo.omegaBaryon / std::pow(a, 3);
+        double T = cosmo.cmb / a / phys.evInKelvin;
+
+        aCalculated.emplace_back(eta, a);
+        XeCalculated.emplace_back(eta, 1 - nb * std::pow(phys.me * T / 2 / pi, -1.5) * std::exp(phys.delta / T));
+    }
+
+    std::vector<double> etaVec, aVec, XeVec;
     while (true) {
         auto [etaStep, aStep, XeStep, finished] = progressEvolution(solver, etaStart, aStart, XeStart, etaDelta);
 
-        eta.insert(eta.end(), etaStep.begin() + 1, etaStep.end());
-        a.insert(a.end(), aStep.begin() + 1, aStep.end());
-        Xe.insert(Xe.end(), XeStep.begin() + 1, XeStep.end());
+        etaVec.insert(etaVec.end(), etaStep.begin() + 1, etaStep.end());
+        aVec.insert(aVec.end(), aStep.begin() + 1, aStep.end());
+        XeVec.insert(XeVec.end(), XeStep.begin() + 1, XeStep.end());
 
-        etaStart = eta.back();
-        aStart = a.back();
-        XeStart = Xe.back();
+        etaStart = etaVec.back();
+        aStart = aVec.back();
+        XeStart = XeVec.back();
 
         if (finished) {
             break;
         }
     }
 
-    return HomogenousHistory{SplineBuilder().buildFromPoints(samplePoints(eta, a, pointsNumber)),
-                             SplineBuilder().buildFromPoints(samplePoints(eta, Xe, pointsNumber))};
+    auto aSampled = samplePoints(etaVec, aVec, pointsNumber);
+    auto XeSampled = samplePoints(etaVec, XeVec, pointsNumber);
+
+    aCalculated.insert(aCalculated.end(), aSampled.begin(), aSampled.end());
+    XeCalculated.insert(XeCalculated.end(), XeSampled.begin(), XeSampled.end());
+
+    auto aSpline = SplineBuilder().buildFromPoints(aCalculated);
+    auto XeSpline = SplineBuilder().buildFromPoints(XeCalculated);
+
+    OdeSolver<double, double> opticDepthSolver;
+    opticDepthSolver.addVariable("tau");
+    opticDepthSolver.addEquation("tau' = dtau");
+    opticDepthSolver.addCoefficient("dtau", [phys, cosmo, &aSpline, &XeSpline](double time) {
+        double a = aSpline.evaluate(time);
+        double Xe = XeSpline.evaluate(time);
+        return -phys.critInEv * phys.thomsonInEv * phys.evInCosmoFrequency * cosmo.omegaBaryon * Xe / (a * a);
+    });
+
+    auto grid = aSpline.getKnots();
+    std::reverse(grid.begin(), grid.end());
+    opticDepthSolver.setGrid(grid);
+    opticDepthSolver.compile<walker::RungeKuttaWalker<double, double>>();
+    auto tau = opticDepthSolver.solve({0});
+
+    std::vector<std::pair<double, double>> points;
+    points.reserve(grid.size());
+    for (int i = 0; i < grid.size(); ++i) {
+        points.emplace_back(grid[i], tau(i, 0));
+    }
+
+    auto tauSpline = SplineBuilder().buildFromPoints(points);
+    return HomogenousHistory{std::move(aSpline), std::move(XeSpline), std::move(tauSpline)};
 }
 
 void writeHomogenousHistoryTo(std::ostream &stream, const HomogenousHistory &history) {
@@ -180,7 +238,7 @@ void writeHomogenousHistoryTo(std::ostream &stream, const HomogenousHistory &his
 
     for (size_t i = 0; i < history.a.getKnots().size() - 1; ++i) {
         stream << history.a.getKnots()[i] << " " << history.a.getPolynomials()[i] << " "
-               << history.Xe.getPolynomials()[i] << "\n";
+               << history.Xe.getPolynomials()[i] << " " << history.tau.getPolynomials()[i] << "\n";
     }
     stream << history.a.getKnots().back();
 }
@@ -192,22 +250,22 @@ HomogenousHistory readHomogenousHistoryFrom(std::istream &stream) {
     std::vector<double> eta(size + 1);
     std::vector<CubicPolynomial> aPoly(size);
     std::vector<CubicPolynomial> XePoly(size);
+    std::vector<CubicPolynomial> tauPoly(size);
 
     for (size_t i = 0; i < size; ++i) {
-        stream >> eta[i] >> aPoly[i] >> XePoly[i];
+        stream >> eta[i] >> aPoly[i] >> XePoly[i] >> tauPoly[i];
     }
     stream >> eta[size];
 
-    return HomogenousHistory{Spline(eta, aPoly), Spline(eta, XePoly)};
+    return HomogenousHistory{Spline(eta, aPoly), Spline(eta, XePoly), Spline(eta, tauPoly)};
 }
 
-void getTransferFunctions(const HomogenousHistory &history) {
+std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory &history, double wavenumber) {
     CosmoParameters cosmo;
     PhysParameters phys;
     OdeSolver<std::complex<double>, double> solver;
 
-    double k = 0.01;
-    solver.addCoefficient("k", [k](double time) { return k; });
+    solver.addCoefficient("k", [wavenumber](double time) { return wavenumber; });
     solver.addCoefficient("i", [](double time) { return std::complex<double>(0, 1); });
 
     solver.addCoefficient("omega_gamma", [omegaGamma = cosmo.omegaPhoton](double time) { return omegaGamma; });
@@ -227,15 +285,11 @@ void getTransferFunctions(const HomogenousHistory &history) {
         return -phys.critInEv * phys.thomsonInEv * phys.evInCosmoFrequency * cosmo.omegaBaryon * Xe / (a * a);
     });
 
-    double aStart = history.a.evaluate(0);
-    double etaStart = 2 * (std::sqrt(
-            (cosmo.omegaPhoton + cosmo.omegaNeutrino) + (cosmo.omegaBaryon + cosmo.omegaCold) * aStart) -
-                           std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino)) / (cosmo.omegaBaryon + cosmo.omegaCold);
-    solver.addCoefficient("eta", [etaStart](double time) {
-        return etaStart + time;
+    solver.addCoefficient("eta", [](double time) {
+        return time;
     });
 
-    int lExpansion = 7;
+    int lExpansion = 8;
     solver.addVariable("Theta_0");
     solver.addEquation("Theta_0' = -k Theta_1 - dPhi");
     solver.addVariable("N_0");
@@ -293,7 +347,7 @@ void getTransferFunctions(const HomogenousHistory &history) {
     solver.addVariable("delta_b");
     solver.addEquation("delta_b' = -i k u_b - 3 dPhi");
     solver.addVariable("u_b");
-    solver.addEquation("u_b' = -u_b da / a - i k Psi + 4 dtau (i Theta_1 + u_b / 3) omega_gamma / (a omega_b)");
+    solver.addEquation("u_b' = -u_b da / a - i k Psi + 4 dtau omega_gamma (i Theta_1 + u_b / 3) / (a omega_b)");
 
     solver.addVariable("Phi");
     solver.addEquation("Phi' = dPhi");
@@ -303,18 +357,41 @@ void getTransferFunctions(const HomogenousHistory &history) {
     solver.addEquation(
             "dPhi = Psi da / a + a / (3 da) * (-k * k * Phi + 1.5 (omega_c delta_c + omega_b delta_b) / a + 6 (omega_gamma Theta_0 + omega_nu N_0) / (a * a))");
 
-    solver.setGrid(history.a.getKnots());
-    solver.compile<walker::BackwardEulerWalker<std::complex<double>, double>>();
+    solver.addVariable("S1");
+    solver.addEquation("S1 = Psi - i dtau u_b / k");
+    solver.addVariable("S2");
+    solver.addEquation("S2 = dtau Theta_0 + dPhi");
+
+    auto grid = history.a.getKnots();
+    solver.setGrid(grid);
+    solver.compile<walker::GaussLegendreWalker<std::complex<double>, double>>();
 
     std::vector<std::complex<double>> state = {1.0 / 3, 1.0 / 3};
     state.insert(state.end(), 2 * lExpansion, 0);
-    state.insert(state.end(), {1, 0, 1, 0, 2.0 / 3, -2.0 / 3, 0});
+    state.insert(state.end(), {1, 0, 1, 0, 2.0 / 3, -2.0 / 3, 0, 0, 0});
 
     auto solution = solver.solve(state);
-    for (int j = 0; j < solution.gridLength; j += 50) {
-        for (int i = 0; i < solution.variableNumber; ++i) {
-            std::cout << solver.getVariables()[i] << " " << solution(j, i) << " ";
-        }
-        std::cout << std::endl;
+    std::complex<double> S1[solution.gridLength];
+    std::complex<double> S2[solution.gridLength];
+
+    std::cout << wavenumber * 4.67 << " " << solution(270, 0) << " " << solution(270, 2 * lExpansion + 6) << " "
+              << solution(270, 0) + solution(270, 2 * lExpansion + 6) << std::endl;
+
+    for (int i = 0; i < solution.gridLength; ++i) {
+        double visibility = std::exp(-history.tau.evaluate(grid[i]));
+        S1[i] = visibility * solution(i, solution.variableNumber - 2);
+        S2[i] = visibility * solution(i, solution.variableNumber - 1);
     }
+
+    std::complex<double> S1derivative[solution.gridLength];
+    differentiate(grid.data(), S1, S1derivative, solution.gridLength);
+
+    std::vector<std::complex<double>> S;
+    S.reserve(solution.gridLength);
+
+    for (int i = 0; i < solution.gridLength; ++i) {
+        S.push_back(S1derivative[i] - S2[i]);
+    }
+
+    return S;
 }
