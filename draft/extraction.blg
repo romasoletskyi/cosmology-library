@@ -5,45 +5,45 @@ The style file: plain.bst
 Database file #1: refs.bib
 Warning--empty publisher in peebles:1980
 Warning--empty publisher in peebles:1993
-You've used 9 entries,
+You've used 10 entries,
             2118 wiz_defined-function locations,
-            545 strings with 5162 characters,
-and the built_in function-call counts, 2454 in all, are:
-= -- 222
-> -- 119
+            552 strings with 5338 characters,
+and the built_in function-call counts, 2804 in all, are:
+= -- 253
+> -- 142
 < -- 0
-+ -- 48
-- -- 38
-* -- 159
-:= -- 437
-add.period$ -- 27
-call.type$ -- 9
-change.case$ -- 41
++ -- 57
+- -- 46
+* -- 191
+:= -- 501
+add.period$ -- 30
+call.type$ -- 10
+change.case$ -- 48
 chr.to.int$ -- 0
-cite$ -- 11
-duplicate$ -- 104
-empty$ -- 201
-format.name$ -- 38
-if$ -- 498
+cite$ -- 12
+duplicate$ -- 115
+empty$ -- 224
+format.name$ -- 46
+if$ -- 566
 int.to.chr$ -- 0
-int.to.str$ -- 9
-missing$ -- 14
-newline$ -- 48
-num.names$ -- 18
-pop$ -- 58
+int.to.str$ -- 10
+missing$ -- 15
+newline$ -- 53
+num.names$ -- 20
+pop$ -- 63
 preamble$ -- 1
-purify$ -- 37
+purify$ -- 43
 quote$ -- 0
-skip$ -- 62
+skip$ -- 68
 stack$ -- 0
-substring$ -- 89
-swap$ -- 9
+substring$ -- 103
+swap$ -- 10
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 26
+type$ -- 30
 warning$ -- 2
-while$ -- 23
-width$ -- 10
-write$ -- 96
+while$ -- 26
+width$ -- 12
+write$ -- 107
 (There were 2 warnings)

@@ -84,6 +84,7 @@
 	
 	\selectlanguage{english}
 	\section{Linear perturbations}
+	\label{sec:linear}
 	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov-2:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
 	\begin{equation}
 		\label{eq:perturb:metric}
@@ -300,9 +301,11 @@
 	\end{align}
 
 	\section{CMB}
+	\label{sec:cmb}
 	In this section we are going to analyze how to solve the system of equations derived in the previous section, what observables can be extracted from CMB observations, and how these observables are connected with perturbations of matter and gravity.
 	
 	\subsection{CMB observations and theory}
+	\label{subsec:cmb-obs}
 	Telescope can, in principle, measure photon temperature fluctuations field $\Theta(\mathbf{n})$, where $\mathbf{n}$ is a normal vector to a sphere. Since it's a fluctuations field $\langle\Theta\rangle_{S^2} = 0$. It can then be expanded into spherical harmonics as 
 	\begin{equation}
 		\Theta(\mathbf{n}) = \sum_{l=1}^\infty\sum_{m=-l}^l a_{lm}Y_{lm}(\mathbf{n})
@@ -440,6 +443,7 @@
 	One uses an analogous technique for neutrinos. Dark matter, baryon and metric perturbations equations are solved in a straightforward way.
 	
 	\section{Power spectrum}
+	\label{sec:power}
 	From theory of previous two sections, we should be able to completely determine an evolution of metric and matter perturbations at linear order. At this order all perturbations are proportional to initial curvature perturbation $\mathcal{R}(\mathbf{k})$, where proportionality coefficient is a transfer function $\mathcal{T}(\mathbf{k}, \eta)$ and is determined from solving a system of coupled differentia equations. Then all perturbations have the Gaussian spectrum
 	\begin{equation}
 		\langle\delta^*(\mathbf{k}, \eta)\delta(\mathbf{k}', \eta)\rangle = (2\pi)^3\delta(\mathbf{k} - \mathbf{k}')P(\mathbf{k}, \eta);\quad P(\mathbf{k}, \eta) = P_{\mathcal{R}}(k)|\mathcal{T}(\mathbf{k}, \eta)|^2
@@ -535,6 +539,34 @@
 		\phi(\mathbf{r})\sim\frac{\bar{n}(\mathbf{r})P(k)}{1 + \alpha + \bar{n}(\mathbf{r})P(k)}\approx \frac{\bar{n}(\mathbf{r})P(k)}{1 + \bar{n}(\mathbf{r})P(k)}
 	\end{equation}
 	since usually one takes $\alpha\ll 1$.
+	
+	\section{Parameter estimation}
+	Given model of perturbations evolution, which was described in sections~\ref{sec:linear},\ref{sec:cmb}, and an estimator of CMB and power spectrum, which were described in subsection~\ref{subsec:cmb-obs} and section~\ref{sec:power}, respectively, we can finally pose a parameter-inference problem. We are going to do in a somewhat abstract matter in order to showcase common points for all cosmological observations. The discussion is loosely based on~\cite{padilla:2021}.
+	
+	Imagine that one have measured data points $\hat{x}_i$ and their respective errors $\sigma_i$. In case of CMB, those are $C_l$ and error depends on observation uncertainties and natural stochasticity of $C_l$. In case of power spectrum, data points are estimations $\hat{P}(k)$ and squares of errors are $\langle\delta\hat{P}(k)^2\rangle$, which were calculated in section~\ref{sec:power}. 
+	
+	Suppose that we can calculate theoretical values $x_i(\theta)$ from known model described by a set of parameters $\theta$. Assume some prior distribution on the parameters as $\theta\sim p(\theta)$. Then we can set up a Bayesian model, which produces data points as $\hat{x_i} = x_i(\theta) + \varepsilon_i\sigma_i$, where $\varepsilon_i\sim\mathcal{N}(0, 1)$ and is uncorrelated along different $i$. In other words, we have defined a likelihood of observing set of data points $X = \{\hat{x}_i\}$ as
+	\begin{equation}
+		p(X|\theta) = \prod_i \exp\left[-\frac{(\hat{x}_i - x_i(\theta))^2}{2\sigma_i^2}\right]
+	\end{equation}
+
+	Since we have assumed some prior $p(\theta)$ on parameters, we can use Bayes rule to estimate a posterior distribution of parameters
+	\begin{equation}
+		p(\theta|X) = \frac{p(X, \theta)}{p(X)} = \frac{p(X|\theta)p(\theta)}{\int d\theta p(X|\theta)p(\theta)}
+	\end{equation}
+	As it often happens, Bayesian inference is hard to perform exactly because there is a multidimensional integral over $\theta$-space, which needs to be computed. Moreover, if we wanted to obtain different posterior statistics of $\theta$ like $\mathbf{E}_{\theta\sim p(\theta|X)}[\theta]$, we would need to perform a multidimensional integral again. 
+	
+	Fortunately, there is Metropolis-Hastings algorithm, which allows to sample parameters $\theta$ according to $p(\theta|X)$ distribution without additional costs. By sampling enough times, one can then easily calculate mean and dispersion of $\theta$. Algorithm runs as follows:
+	\begin{enumerate}
+		\item Start at $t=1$ and generate arbitrary point $\theta_t$.
+		\item Generate new candidate $\theta_{t+1}\sim q(\theta_{t+1}|\theta_t)$ - usually one does small random steps in parameters space.
+		\item Accept new candidate with probability
+		\begin{equation}
+			P = \min\left(1, \frac{p(X|\theta_{t+1})p(\theta_{t+1})}{p(X|\theta_t)p(\theta_t)}\right)
+		\end{equation} 
+		If candidate is rejected, set $\theta_{t+1} = \theta_t$.
+		\item Repeat steps 2 and 3 until sufficient number of points is generated. Sufficient number simply means that searched statistics like $\mathbf{E}_{\theta\sim p(\theta|X)}[\theta]$ are approached by empirical statistics like $\sum_{t=1}^T \theta_t / T$ in a convergent manner.
+	\end{enumerate}
 	
 	\bibliographystyle{plain}
 	\bibliography{refs.bib}

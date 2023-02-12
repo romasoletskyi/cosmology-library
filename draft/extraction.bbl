@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{dodelson:2003}
 Scott Dodelson.
@@ -27,6 +27,11 @@ Chung-Pei Ma and Edmund Bertschinger.
 \newblock Cosmological perturbation theory in the synchronous and conformal
   newtonian gauges.
 \newblock {\em The Astrophysical Journal}, 455:7, dec 1995.
+
+\bibitem{padilla:2021}
+Luis~E. Padilla, Luis~O. Tellez, Luis~A. Escamilla, and Jose~Alberto Vazquez.
+\newblock Cosmological parameter inference with bayesian statistics.
+\newblock {\em Universe}, 7(7):213, jun 2021.
 
 \bibitem{peebles:1980}
 P.~J.~E. {Peebles}.
