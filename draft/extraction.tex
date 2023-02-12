@@ -14,6 +14,8 @@
 \newtheorem{remark}{Remark}
 \newtheorem{theorem}{Theorem}
 \numberwithin{theorem}{section}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
 \usepackage{float}
 \usepackage{braket}
 \usepackage{hyperref}
@@ -27,15 +29,60 @@
 \DeclareMathOperator{\Ima}{Im}
 \DeclareMathOperator{\Rea}{Re}
 
-\title{Extraction of cosmological parameters from observational data}
-\author{Roman Soletskyi\\
-		Supervised by: Erwan Allys, François Levrier}
+%*****PREMIÈREPAGE*****
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\newcommand{\hsp}{\hspace{20pt}}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
+%*****HEADER/FOOTER*****
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RE,LO]{Library-based project report}
+%\color{black}{\fancyfoot[C]{{\thepage} / \pageref{LastPage}}}
+\cfoot{\thepage\  / 15\hypersetup{linkcolor=black}}
+\fancyfoot[LE,RO]{École Normale Supérieure}
+\DeclareUnicodeCharacter{2212}{-}
 
 \begin{document}
+	
+	\definecolor{ENS}{RGB}{64, 23, 61}
+	\definecolor{PSL}{RGB}{33, 59, 138}
+	\begin{titlepage}
+		
+		\begin{sffamily}
+			\centering
+			%\pagecolor{white}\afterpage{\nopagecolor}
+			\begin{figure}
+				\centering
+				\includegraphics[scale=0.38]{FIG0(1)(1).png}~\\[3cm]
+				\label{ENS}
+			\end{figure}
+			\centering
+			\textsc{\LARGE Library-based project report}\\[0.5cm]
+			\textsc{\LARGE M1 ICFP}\\[0.5cm]
+			
+			\textsc{\LARGE }\\[0.5cm]
+			
+			\begin{center}
+				
+				\HRule \\[0.4cm]
+				\textsc{ \huge \bfseries Extraction of cosmological parameters from observational data}
+				\HRule \\[1.0cm]
+				\href{http://www.phys.ens.fr/}{\includegraphics[scale=0.40]{FIG(1)(1).png}}\vspace*{0.5cm} \hspace*{1.5cm}
+			\end{center}
+			
+			\begin{center}
+				\textsc{Supervisors: Erwan Allys, François Levrier}\\
+				\textsc{Authors: Roman Soletskyi}
+				\vfill
+				{\textsc{ \large February 2022}}
+				
+			\end{center}
+		\end{sffamily}
+	\end{titlepage}
+	
 	\selectlanguage{english}
-	\vspace{-3cm}
-	\maketitle
 	\section{Linear perturbations}
 	In this section we are going to write out general equations, which govern evolution of nearly homogeneous universe, taking in consideration linear perturbations of matter and metric. Discussion is mainly based on~\cite{dodelson:2003} and interest is placed on the recombination epoch. From~\cite{gorbunov-rubakov-2:2011} it is known that scalar metric perturbations play the most important rule in the evolution and, therefore, we consider metric of form
 	\begin{equation}
@@ -339,8 +386,16 @@
 	\end{equation}
 	where $\Delta = m_e + m_p - m_H$ is an ionization energy. In order to compute cross-section, one has to consider complicated set of reactions between different excited states of hydrogen atom and their decay rates computed from QED, sketch of the computation can be found in~\cite{peebles:1993}. Instead, we are going to use an approximation from~\cite{ma:1995} which works well for recombination temperatures:
 	\begin{equation}
-		\langle\sigma v\rangle\approx 9.78\frac{\alpha^2}{m_e^2}\left(\frac{\Delta}{T}\right)^{1/2}\ln\frac{\Delta}{T}
+		\langle\sigma v\rangle = C_r\langle\sigma v\rangle_0;\quad \langle\sigma v\rangle_0\approx9.78 \frac{\alpha^2}{m_e^2}\left(\frac{\Delta}{T}\right)^{1/2}\ln\frac{\Delta}{T}
 	\end{equation}
+	where $C_r$ is a reduction factor, equal to the ratio of net decay to the sum of decay (from 2s to 1s through two-photon process or cosmological redshift of Lyman alpha photons) and ionization rates (from 1s to 2s). It is equal to
+	\begin{align}
+		& C_r = \frac{\Lambda_\alpha + \Lambda_{2s\to1s}}{\Lambda_\alpha + 
+		\Lambda_{2s\to1s} + \Lambda_{ion}} \\
+		& \Lambda_{2s\to1s} = 8.227 s^{-1} \\
+		& \Lambda_\alpha = \frac{8\pi a'}{a^2\lambda_\alpha^3(1-X_e)n_b};\quad \lambda_\alpha = \frac{8\pi\hbar c}{3\Delta} \\ 
+		& \Lambda_{ion} = \langle\sigma v\rangle_0 \left(\frac{m_eT}{2\pi}\right)^{3/2}e^{-\Delta/4T}
+	\end{align}
 
 	Finally, differential optical depth $-\tau'$ can be computed $-\tau' = n_e\sigma_Ta = n_bX_e\sigma_Ta$. Probability density of a photon being last time scattered at $\eta$ is $g(\eta) = (e^{-\tau})' = (-\tau')e^{-\tau}$. 
 	
