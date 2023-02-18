@@ -21,4 +21,7 @@ struct CosmoParameters {
 
     double h = 0.6774; // H0 = 100 h km / (Mpc s), where H0 - Hubble constant
     double cmb = 2.726; // cmb current temperature in kelvin
+    double ns = 1; // scalar spectral index
+
+    double cmbScale = 3e+4; // spectrum proportionality coefficient
 };

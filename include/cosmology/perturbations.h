@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <complex>
+#include <cosmology/parameters.h>
+#include <cosmology/odesolver/odesolver.h>
 #include <cosmology/utility/spline.h>
 
 struct HomogenousHistory {
@@ -10,10 +12,13 @@ struct HomogenousHistory {
     Spline tau; // optical depth
 };
 
-void writeHomogenousHistoryTo(std::ostream& stream, const HomogenousHistory& history);
+void writeHomogenousHistoryTo(std::ostream &stream, const HomogenousHistory &history);
 
-HomogenousHistory readHomogenousHistoryFrom(std::istream& stream);
+HomogenousHistory readHomogenousHistoryFrom(std::istream &stream);
 
-HomogenousHistory getHomogenousHistory(int pointsNumber);
+HomogenousHistory getHomogenousHistory(int pointsNumber, const CosmoParameters &cosmo);
 
-std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory& history, double wavenumber);
+Solution<std::complex<double>>
+getPerturbations(const CosmoParameters &cosmo, const HomogenousHistory &history, double wavenumber);
+
+Spline getGeneratingFunction(const HomogenousHistory &history, const Solution<std::complex<double>> &solution);

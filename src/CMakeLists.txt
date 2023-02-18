@@ -8,7 +8,8 @@ set(HEADER_LIST "${LIB_DIR}/odesolver/odesolver.h"
                 "${LIB_DIR}/utility/spline.h"
                 "${LIB_DIR}/utility/utility.h"
                 "${LIB_DIR}/parameters.h"
-                "${LIB_DIR}/perturbations.h")
+                "${LIB_DIR}/perturbations.h"
+                "${LIB_DIR}/monte_carlo.h")
 
 set(SRC_LIST "perturbations.cpp"
              "utility/spline.cpp")

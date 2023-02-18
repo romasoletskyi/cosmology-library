@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 #include <ostream>
 #include <istream>
@@ -20,8 +21,8 @@ class Spline {
 public:
     Spline() {}
 
-    Spline(const std::vector<double> &knots, const std::vector<CubicPolynomial> &polys) : knots_(knots),
-                                                                                          polys_(polys) {}
+    Spline(std::vector<double> knots, std::vector<CubicPolynomial> polys) : knots_(std::move(knots)),
+                                                                            polys_(std::move(polys)) {}
 
     double evaluate(double t) const;
 

@@ -3,11 +3,17 @@
 
 #include <cosmology/odesolver/odesolver.h>
 #include <cosmology/utility/math.h>
-#include <cosmology/utility/utility.h>
 #include <cosmology/perturbations.h>
-#include <cosmology/parameters.h>
 
 constexpr double pi = 3.14159265358979323846;
+
+double computeScaleDerivative(const CosmoParameters &cosmo, double a) {
+    double omegaK = std::pow(cosmo.h, 2) -
+                    (cosmo.omegaLambda + cosmo.omegaBaryon + cosmo.omegaCold + cosmo.omegaPhoton +
+                     cosmo.omegaNeutrino);
+    return std::sqrt(cosmo.omegaLambda * std::pow(a, 4) + omegaK * std::pow(a, 2) +
+                     (cosmo.omegaBaryon + cosmo.omegaCold) * a + (cosmo.omegaPhoton + cosmo.omegaNeutrino));
+}
 
 double computeRelativeDifference(const Solution<double> &lhs, const Solution<double> &rhs) {
     double difference = 0;
@@ -118,16 +124,13 @@ std::vector<double> makeFineGrid(const std::vector<double> &grid, int factor) {
     return fine;
 }
 
-HomogenousHistory getHomogenousHistory(int pointsNumber) {
-    CosmoParameters cosmo;
+HomogenousHistory getHomogenousHistory(int pointsNumber, const CosmoParameters &cosmo) {
     PhysParameters phys;
     OdeSolver<double, double> solver;
 
     solver.addVariable("a");
     solver.addExplicitFunction("da", [cosmo](double time, std::vector<double> data) {
-        double a = data[0];
-        return std::sqrt(cosmo.omegaLambda * std::pow(a, 4) + (cosmo.omegaBaryon + cosmo.omegaCold) * a +
-                         (cosmo.omegaPhoton + cosmo.omegaNeutrino));
+        return computeScaleDerivative(cosmo, data[0]);
     }, {"a"});
 
     solver.addVariable("Xe");
@@ -141,8 +144,7 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
                                std::sqrt(phys.delta / T) *
                                std::log(phys.delta / T);
 
-        double da = std::sqrt(cosmo.omegaLambda * std::pow(a, 4) + (cosmo.omegaBaryon + cosmo.omegaCold) * a +
-                              (cosmo.omegaPhoton + cosmo.omegaNeutrino));
+        double da = computeScaleDerivative(cosmo, a);
         double wavelength_in_inverse_ev = 2 * pi / (0.75 * phys.delta); // 2s -> 1s transition
         double lambda_alpha = phys.cosmoFrequencyInHz * 8 * pi * a * da /
                               ((1 - Xe) * phys.critInEv * cosmo.omegaBaryon *
@@ -163,7 +165,9 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
 
     double etaDelta = 2e-4;
     double aStart = 6.6e-4;
-    double etaStart = 2 * (std::sqrt(aStart * (cosmo.omegaBaryon + cosmo.omegaCold) + (cosmo.omegaPhoton + cosmo.omegaNeutrino)) - std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino)) / (cosmo.omegaBaryon + cosmo.omegaCold);
+    double etaStart = 2 * (std::sqrt(
+            aStart * (cosmo.omegaBaryon + cosmo.omegaCold) + (cosmo.omegaPhoton + cosmo.omegaNeutrino)) -
+                           std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino)) / (cosmo.omegaBaryon + cosmo.omegaCold);
     double TStart = cosmo.cmb / aStart / phys.evInKelvin;
     double nbStart = phys.critInEv * cosmo.omegaBaryon / std::pow(aStart, 3);
     double XeStart = 1 - nbStart * std::exp(phys.delta / TStart) * std::pow(phys.me * TStart / 2 / pi, -1.5);
@@ -174,7 +178,8 @@ HomogenousHistory getHomogenousHistory(int pointsNumber) {
 
     for (size_t i = 0; i < etaCalculated.size() - 1; ++i) {
         double eta = etaCalculated[i];
-        double a = std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino) * eta + (cosmo.omegaBaryon + cosmo.omegaCold) * std::pow(eta, 2) / 4;
+        double a = std::sqrt(cosmo.omegaPhoton + cosmo.omegaNeutrino) * eta +
+                   (cosmo.omegaBaryon + cosmo.omegaCold) * std::pow(eta, 2) / 4;
         double nb = phys.critInEv * cosmo.omegaBaryon / std::pow(a, 3);
         double T = cosmo.cmb / a / phys.evInKelvin;
 
@@ -260,8 +265,8 @@ HomogenousHistory readHomogenousHistoryFrom(std::istream &stream) {
     return HomogenousHistory{Spline(eta, aPoly), Spline(eta, XePoly), Spline(eta, tauPoly)};
 }
 
-std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory &history, double wavenumber) {
-    CosmoParameters cosmo;
+Solution<std::complex<double>>
+getPerturbations(const CosmoParameters &cosmo, const HomogenousHistory &history, double wavenumber) {
     PhysParameters phys;
     OdeSolver<std::complex<double>, double> solver;
 
@@ -275,9 +280,7 @@ std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory 
 
     solver.addCoefficient("a", [&history](double time) { return history.a.evaluate(time); });
     solver.addCoefficient("da", [cosmo, &history](double time) {
-        double a = history.a.evaluate(time);
-        return std::sqrt(cosmo.omegaLambda * std::pow(a, 4) + (cosmo.omegaBaryon + cosmo.omegaCold) * a +
-                         (cosmo.omegaPhoton + cosmo.omegaNeutrino));
+        return computeScaleDerivative(cosmo, history.a.evaluate(time));
     });
     solver.addCoefficient("dtau", [phys, cosmo, &history](double time) {
         double a = history.a.evaluate(time);
@@ -370,12 +373,13 @@ std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory 
     state.insert(state.end(), 2 * lExpansion, 0);
     state.insert(state.end(), {1, 0, 1, 0, 2.0 / 3, -2.0 / 3, 0, 0, 0});
 
-    auto solution = solver.solve(state);
+    return solver.solve(state);
+}
+
+Spline getGeneratingFunction(const HomogenousHistory &history, const Solution<std::complex<double>> &solution) {
+    auto grid = history.a.getKnots();
     std::complex<double> S1[solution.gridLength];
     std::complex<double> S2[solution.gridLength];
-
-    std::cout << wavenumber * 4.67 << " " << solution(270, 0) << " " << solution(270, 2 * lExpansion + 6) << " "
-              << solution(270, 0) + solution(270, 2 * lExpansion + 6) << std::endl;
 
     for (int i = 0; i < solution.gridLength; ++i) {
         double visibility = std::exp(-history.tau.evaluate(grid[i]));
@@ -386,12 +390,12 @@ std::vector<std::complex<double>> getGeneratingFunction(const HomogenousHistory 
     std::complex<double> S1derivative[solution.gridLength];
     differentiate(grid.data(), S1, S1derivative, solution.gridLength);
 
-    std::vector<std::complex<double>> S;
+    std::vector<std::pair<double, double>> S;
     S.reserve(solution.gridLength);
 
     for (int i = 0; i < solution.gridLength; ++i) {
-        S.push_back(S1derivative[i] - S2[i]);
+        S.emplace_back(grid[i], (S1derivative[i] - S2[i]).real());
     }
 
-    return S;
+    return SplineBuilder().buildFromPoints(S);
 }

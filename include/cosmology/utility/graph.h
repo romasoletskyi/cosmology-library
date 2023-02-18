@@ -8,7 +8,7 @@ namespace graph {
     };
 
     template<class Vertex, class Graph, class Visitor>
-    void DepthFirstSearch(const Graph &graph, Vertex origin, Visitor &visitor) {
+    inline void DepthFirstSearch(const Graph &graph, Vertex origin, Visitor &visitor) {
         std::vector<Vertex> vertices;
         std::unordered_map<Vertex, VertexColor> color;
         vertices.push_back(origin);
@@ -41,11 +41,11 @@ namespace graph {
         std::vector<std::vector<int>> edges;
     };
 
-    const std::vector<int> &getVertexNeighbors(const Graph &graph, int vertex) {
+    inline const std::vector<int> &getVertexNeighbors(const Graph &graph, int vertex) {
         return graph.edges[vertex];
     }
 
-    Graph transposeGraph(const Graph &graph) {
+    inline Graph transposeGraph(const Graph &graph) {
         Graph transpose;
         transpose.edges.resize(graph.edges.size());
 
@@ -58,7 +58,7 @@ namespace graph {
         return transpose;
     }
 
-    std::pair<Graph, std::unordered_map<int, int>> buildSubgraph(const Graph &graph, const std::vector<int> &vertices) {
+    inline std::pair<Graph, std::unordered_map<int, int>> buildSubgraph(const Graph &graph, const std::vector<int> &vertices) {
         Graph subgraph;
         subgraph.edges.resize(vertices.size());
         auto vertexToIndex = createVectorToIndex(vertices);
@@ -105,7 +105,7 @@ namespace graph {
         std::vector<int> order_;
     };
 
-    std::vector<int> getTopologicalOrder(const Graph &graph) {
+    inline std::vector<int> getTopologicalOrder(const Graph &graph) {
         TopologicalVisitor visitor;
 
         for (int vertex = 0; vertex < graph.edges.size(); ++vertex) {
